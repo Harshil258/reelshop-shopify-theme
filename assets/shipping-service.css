@@ -1,0 +1,58 @@
+.shipping-service-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+li.shipping-service-item {
+    flex: 0 0 25%;
+    max-width: calc(25% - 2rem);
+    margin: 0 1rem;
+}
+.shipping-service-info {
+    max-width: 240px;
+    margin: 0 auto;
+}
+.shipping-service-item .shipping-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 30px;
+    margin: 0 auto;
+}
+.shipping-service-item .shipping-icon {
+    margin-bottom: 15px;
+}
+.shipping-service-item .shipping-title h4 {
+    font-size: 15px;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+    color: #000;
+}
+.shipping-desc p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #000;
+    overflow-wrap: break-word;
+}
+
+
+@media(max-width:749px){
+  .shipping-service-list {
+    text-align: left;
+    align-items: unset;
+  }
+  li.shipping-service-item {
+    flex: 0 0 50%;
+    max-width: calc(50% - 1rem);
+    margin: 0 0.5rem 3rem;
+  }
+  .shipping-service-item .shipping-icon img {
+    margin: 0;
+    margin-right: auto;
+  }
+}

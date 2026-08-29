@@ -1,0 +1,44 @@
+
+<div class="upsell-product">
+  
+  {% if settings.cartFeaHeading != blank %}
+  <div class="upsell-product-header">
+    <h3>{{ settings.upsellHeading }}</h3>
+  </div>
+  {% endif %}
+ {% assign collection = settings.upsellCollection %}
+ 
+  {% assign new_var = '' %}
+  {% for product in collection.products %}
+    {% for item in cart.items %}
+      {% if item.product.id == product.id %}
+        {% assign new_var = new_var | append:  product.id  %}
+        {% assign new_var = new_var | append:  ','  %}
+      {% else %}
+      {% endif %}
+     {% endfor %}
+   {% endfor %}
+  
+  <div class="upsell-product-body">
+    <div class="upsell-product-flex">
+    {%- for product in collection.products -%}
+      {% unless new_var contains product.id %}
+        <div class="upsell-product-item"> 
+          {% render 'cart-featured-item',
+            card_product: product,
+            media_aspect_ratio: 'portrait',
+            image_shape: 'default',
+            show_secondary_image: true,
+            show_vendor: false,
+            show_rating: false,
+            show_quick_add: true,
+            section_id: section.id,
+            section: section
+          %}
+        </div>
+      {% endunless %}
+    {% endfor %}
+    </div>
+  </div>
+  
+</div>

@@ -1,0 +1,128 @@
+{{ 'shipping-service.css' | asset_url | stylesheet_tag }}
+<div class="shipping-service shipping-service-{{ section.id }}" style="background:{{ section.settings.background }};">
+  <div class="page-width">
+    <div class="shipping-service-body">
+      <ul class="shipping-service-list">
+        {%- for block in section.blocks -%}
+          <li class="shipping-service-item">
+            <div class="shipping-service-info">
+              {% if block.settings.image != blank %}
+              <div class="shipping-icon">
+                <img src="{{ block.settings.image | img_url: '30x30' }}">
+              </div>
+              {% endif %}
+              {% if block.settings.title != blank %}
+              <div class="shipping-title">
+                <h4>{{ block.settings.title }}</h4>
+              </div>
+              {% endif %}
+              {% if block.settings.richtext != blank %}
+              <div class="shipping-desc">
+               {{ block.settings.richtext }}
+              </div>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+.shipping-service-{{ section.id }}{
+  padding-top:{{section.settings.paddingTopMobile}}px;
+  padding-Bottom:{{section.settings.paddingBottomMobile}}px;
+}  
+
+@media(min-width:749px){
+  .shipping-service-{{ section.id }}{
+    padding-top:{{section.settings.paddingTopDesktop}}px;
+    padding-Bottom:{{section.settings.paddingBottomDesktop}}px;
+  }  
+}
+</style>
+{% schema %}
+  {
+    "name": "Shipping Service",
+    "settings": [
+        {
+          "type": "color",
+          "id": "background",
+          "label": "Background Color"
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "paddingTopDesktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Padding Top (Desktop)",
+          "default": 60
+        },
+        {
+          "type": "range",
+          "id": "paddingBottomDesktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Padding Bottom (Desktop)",
+          "default": 60
+        },
+        {
+          "type": "range",
+          "id": "paddingTopMobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Padding Top (Mobile)",
+          "default": 30
+        },
+        {
+          "type": "range",
+          "id": "paddingBottomMobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Padding Bottom (Mobile)",
+          "default": 30
+        }
+      ],
+     "blocks": [
+        {
+        "type": "block",
+        "name": "block",
+          "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Logo"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "richtext",
+            "id": "richtext",
+            "label": "Richtext"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name":"Shipping Service"
+      }
+    ]
+  }
+{% endschema %}

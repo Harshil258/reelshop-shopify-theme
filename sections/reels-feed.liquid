@@ -1,0 +1,209 @@
+{% comment %}
+  ==========================================================================
+  ReelShop — Reels feed section
+  ==========================================================================
+  Full-screen TikTok/Reels-style affiliate feed.
+
+  Required product metafields (namespace "reelshop") — see metafields.json
+  at the theme root for the full setup list:
+    affiliate_url (url), video_url (url), platform, price, original_price,
+    currency_symbol, category, tags_extra, gallery_images, rating
+
+  Assets: assets/reelshop.css + assets/reelshop.js (vanilla, no CDNs).
+{% endcomment %}
+
+{{ 'reelshop.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign feed_collection = collections[section.settings.source_collection] | default: collections.all
+  assign limit = section.settings.products_per_load | at_most: 50 | at_least: 1
+-%}
+
+{%- if template.name == 'index' -%}
+  <style>
+    /* Make the reels feed a full-screen app on the homepage */
+    body { overflow: hidden; }
+    .shopify-section-group-header-group,
+    .shopify-section-group-footer-group,
+    .header-wrapper,
+    .announcement-bar,
+    footer.footer,
+    .location-list { display: none !important; }
+  </style>
+{%- endif -%}
+
+<div
+  class="reelshop"
+  data-reelshop-mode="feed"
+  style="--rs-accent: {{ section.settings.accent_color }}; --rs-bg: {{ section.settings.background_color }};"
+>
+  <div class="reel-frame">
+    <header class="reel-topbar">
+      <button class="reel-iconbtn" type="button" data-action="search" aria-label="Search products" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+
+      <span class="reel-topbar__title">{{ section.settings.feed_title | default: shop.name | escape }}</span>
+
+      <div class="reel-topbar__actions">
+        {%- if section.settings.favorites_page != blank -%}
+          <a class="reel-iconbtn" href="{{ section.settings.favorites_page }}" aria-label="Open favorites">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h12v18l-6-4.2L6 21z"/></svg>
+          </a>
+        {%- endif -%}
+
+        <button class="reel-iconbtn" type="button" data-action="sound" aria-label="Unmute sound" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+            <path class="rs-sound-wave" d="M16.5 8.5a5 5 0 0 1 0 7"/>
+            <path class="rs-sound-slash" d="M16 9l5 6M21 9l-5 6"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="reel-searchpanel">
+      <div class="reel-searchpanel__row">
+        <input type="search" placeholder="Search products…" aria-label="Search products">
+        <button class="reel-iconbtn" type="button" data-action="close-search" aria-label="Close search">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="reel-chips" role="group" aria-label="Filter by category"></div>
+    </div>
+
+    <div class="reel-feed" tabindex="0" aria-label="Product reels feed — swipe or use arrow keys to browse">
+      {%- paginate feed_collection.products by limit -%}
+        {%- for product in feed_collection.products -%}
+          {%- render 'reel-slide', product: product, section_settings: section.settings -%}
+        {%- endfor -%}
+      {%- endpaginate -%}
+
+      <div class="reel-state reel-state--empty" hidden>
+        <strong>No matching products</strong>
+        <p>Try a different search term or category.</p>
+      </div>
+    </div>
+
+    <div class="reel-onboard" hidden>
+      Swipe up for next&ensp;·&ensp;swipe sideways for photos&ensp;·&ensp;double-tap to like
+    </div>
+
+    <div class="reel-toast" role="status" aria-live="polite"></div>
+
+    <noscript>
+      <div class="reel-state">
+        <strong>JavaScript is required</strong>
+        <p>Please enable JavaScript to browse the reels feed.</p>
+      </div>
+    </noscript>
+  </div>
+</div>
+
+<script type="application/json" id="ReelShopConfig">
+  {
+    "mode": "feed",
+    "algorithm": {{ section.settings.enable_algorithm | json }},
+    "exploration": {{ section.settings.exploration_strength | divided_by: 100.0 | json }},
+    "showRatings": {{ section.settings.show_ratings | json }}
+  }
+</script>
+
+<script src="{{ 'reelshop.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Reels feed",
+  "settings": [
+    {
+      "type": "text",
+      "id": "feed_title",
+      "label": "Feed title",
+      "default": "ReelShop",
+      "info": "Shown in the top bar. Leave blank to use your shop name."
+    },
+    {
+      "type": "collection",
+      "id": "source_collection",
+      "label": "Product source",
+      "info": "Which collection's products fill the feed. Defaults to all products."
+    },
+    {
+      "type": "range",
+      "id": "products_per_load",
+      "label": "Products per load",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent / CTA color",
+      "default": "#ff2d55"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "text",
+      "id": "currency_symbol",
+      "label": "Default currency symbol",
+      "default": "₹",
+      "info": "Used with the price metafield. A product's currency_symbol metafield overrides this."
+    },
+    {
+      "type": "text",
+      "id": "default_platform",
+      "label": "Default platform",
+      "default": "amazon",
+      "info": "Fallback when a product has no platform metafield: amazon, flipkart or meesho."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA button text",
+      "default": "Buy on {{platform}}",
+      "info": "{{platform}} is replaced with Amazon, Flipkart or Meesho per product."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_ratings",
+      "label": "Show ratings",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_algorithm",
+      "label": "Enable recommendation algorithm",
+      "default": true,
+      "info": "When off, the feed always uses the default product order."
+    },
+    {
+      "type": "range",
+      "id": "exploration_strength",
+      "label": "Exploration randomness",
+      "min": 0,
+      "max": 85,
+      "step": 5,
+      "default": 20,
+      "info": "Higher keeps the feed varied and surfaces products the viewer hasn't engaged with yet."
+    },
+    {
+      "type": "url",
+      "id": "favorites_page",
+      "label": "Favorites page link",
+      "info": "Create a page using the 'Favorites' template, then link it here to show the bookmark icon."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reels feed"
+    }
+  ]
+}
+{% endschema %}

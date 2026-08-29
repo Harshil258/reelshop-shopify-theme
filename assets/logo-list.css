@@ -1,0 +1,43 @@
+.logo-list-header {
+    margin-bottom: 5rem;
+    text-align: center;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+.logo-list-header span {
+    display: block;
+    margin-bottom: 1rem;
+}
+.logo-list-header h2 {
+    font-size: 36px;
+    line-height: 1.3;
+    margin: 0;
+}
+.logo-list-flex {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    overflow-x: scroll;
+    width:100%;
+}
+.logo-list-flex .logo-item {
+    width: 260px;
+    padding: 0 5px;
+}
+.logo-list-flex .logo-item a .image-with-text__media {
+    width: 100%;
+    height: 100%;
+}
+.logo-list-flex .logo-item a .image-with-text__media svg.placeholder-svg,
+.logo-list-flex .logo-item a{
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+@media(max-width:749px){
+  .logo-list-header {
+    margin-bottom: 2.5rem;
+  }
+}

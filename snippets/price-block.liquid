@@ -1,0 +1,16 @@
+{% comment %}
+  ReelShop price block.
+  Accepts:
+    - price_display:    formatted current price (string, required)
+    - original_display: formatted strikethrough price (string, optional)
+    - discount_pct:     discount percentage (number, optional)
+{% endcomment %}
+<div class="reel-price">
+  <span class="reel-price__current">{{ price_display }}</span>
+  {%- if original_display != blank -%}
+    <s class="reel-price__original">{{ original_display }}</s>
+    {%- if discount_pct != blank and discount_pct > 0 -%}
+      <span class="reel-price__badge">-{{ discount_pct | round }}%</span>
+    {%- endif -%}
+  {%- endif -%}
+</div>

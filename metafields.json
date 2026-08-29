@@ -1,0 +1,66 @@
+{
+  "_README": "ReelShop metafield definitions. Create these in Shopify admin under Settings > Custom data > Products > Add definition. Use the EXACT namespace 'reelshop' and the keys below. This file is documentation for your setup only; if your theme upload tool rejects unknown root files, delete it before uploading.",
+  "namespace": "reelshop",
+  "definitions": [
+    {
+      "key": "affiliate_url",
+      "name": "Affiliate link (REQUIRED)",
+      "type": "url",
+      "note": "Your Amazon / Flipkart / Meesho referral link. Opens in a new tab with rel='nofollow sponsored noopener'. Without it the CTA button is disabled."
+    },
+    {
+      "key": "video_url",
+      "name": "Reel video URL",
+      "type": "url",
+      "note": "Direct .mp4 link (upload to Shopify Content > Files, or any CDN). Optional if the product uses images only. A single file_reference to an uploaded video also works."
+    },
+    {
+      "key": "platform",
+      "name": "Platform",
+      "type": "single_line_text",
+      "note": "One of: amazon, flipkart, meesho. Falls back to the section's default platform setting."
+    },
+    {
+      "key": "price",
+      "name": "Display price",
+      "type": "number_decimal (or money)",
+      "note": "Shown with your currency symbol. Falls back to the native product price."
+    },
+    {
+      "key": "original_price",
+      "name": "Original price (optional)",
+      "type": "number_decimal (or money)",
+      "note": "Higher than price to show a strikethrough + discount % badge."
+    },
+    {
+      "key": "currency_symbol",
+      "name": "Currency symbol (optional)",
+      "type": "single_line_text",
+      "note": "e.g. ₹ — overrides the theme-editor default for this product."
+    },
+    {
+      "key": "category",
+      "name": "Category",
+      "type": "single_line_text",
+      "note": "Used by the recommendation algorithm and the category filter chips. Falls back to product type, then first tag."
+    },
+    {
+      "key": "tags_extra",
+      "name": "Extra tags (optional)",
+      "type": "list.single_line_text",
+      "note": "Used by the algorithm for finer affinity. Falls back to the product's normal tags."
+    },
+    {
+      "key": "gallery_images",
+      "name": "Carousel images (optional)",
+      "type": "list.file_reference (or list.url)",
+      "note": "Extra photos for the horizontal swipe carousel. Falls back to the product's normal images."
+    },
+    {
+      "key": "rating",
+      "name": "Rating (optional)",
+      "type": "number_decimal",
+      "note": "0–5, shown as stars next to the title when 'Show ratings' is enabled."
+    }
+  ]
+}

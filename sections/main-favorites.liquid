@@ -1,0 +1,138 @@
+{% comment %}
+  ==========================================================================
+  ReelShop — Favorites page section
+  ==========================================================================
+  Renders the products the visitor bookmarked in the reels feed (stored in
+  localStorage). The full product catalog is embedded as JSON below; the
+  favorites view is assembled client-side by reelshop.js.
+{% endcomment %}
+
+{{ 'reelshop.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="reel-favpage"
+  data-reelshop-mode="favorites"
+  style="--rs-accent: {{ section.settings.accent_color }};"
+>
+  <header class="reel-favpage__header">
+    <h1 class="reel-favpage__title">{{ section.settings.heading | default: 'Your favorites' | escape }}</h1>
+    <p class="reel-favpage__sub">Saved on this device. Tap a product to jump back into the reels feed.</p>
+  </header>
+
+  <div class="reel-favgrid"></div>
+
+  <div class="reel-favempty" hidden>
+    <p><strong>No favorites yet.</strong></p>
+    <p>
+      Tap the bookmark icon on any product in the
+      <a href="{{ routes.root_url }}">reels feed</a> to save it here.
+    </p>
+  </div>
+
+  <script type="application/json" class="reel-favdata">
+    [
+      {%- paginate collections.all.products by 50 -%}
+        {%- for product in collections.all.products -%}
+          {%- liquid
+            assign mf = product.metafields.reelshop
+
+            assign platform = mf.platform | default: section.settings.default_platform | default: 'amazon' | downcase | strip
+            case platform
+              when 'amazon'
+                assign platform_label = 'Amazon'
+              when 'flipkart'
+                assign platform_label = 'Flipkart'
+              when 'meesho'
+                assign platform_label = 'Meesho'
+              else
+                assign platform_label = platform | capitalize | default: 'Store'
+            endcase
+
+            assign symbol = mf.currency_symbol | default: section.settings.currency_symbol
+            if mf.price != blank
+              assign p_num = mf.price | times: 1.0
+              assign p_str = p_num | append: ''
+              assign p_parts = p_str | split: '.'
+              assign p_clean = p_parts[0]
+              if p_parts[1] != blank and p_parts[1] != '0'
+                assign p_clean = p_clean | append: '.' | append: p_parts[1]
+              endif
+              assign price_display = symbol | append: p_clean
+            else
+              assign price_display = product.price | money
+            endif
+
+            assign orig_display = ''
+            if mf.original_price != blank
+              assign o_num = mf.original_price | times: 1.0
+              assign o_str = o_num | append: ''
+              assign o_parts = o_str | split: '.'
+              assign o_clean = o_parts[0]
+              if o_parts[1] != blank and o_parts[1] != '0'
+                assign o_clean = o_clean | append: '.' | append: o_parts[1]
+              endif
+              assign orig_display = symbol | append: o_clean
+            elsif product.compare_at_price > product.price
+              assign orig_display = product.compare_at_price | money
+            endif
+
+            assign img_url = ''
+            if product.featured_image != blank
+              assign img_url = product.featured_image | image_url: width: 600
+            endif
+
+            assign affiliate = mf.affiliate_url
+            assign feed_url = routes.root_url | append: '?product=' | append: product.handle
+          -%}
+          {
+            "id": {{ product.id | json }},
+            "handle": {{ product.handle | json }},
+            "title": {{ product.title | json }},
+            "image": {{ img_url | json }},
+            "priceDisplay": {{ price_display | json }},
+            "originalPriceDisplay": {{ orig_display | json }},
+            "platform": {{ platform | json }},
+            "platformLabel": {{ platform_label | json }},
+            "affiliateUrl": {{ affiliate | json }},
+            "feedUrl": {{ feed_url | json }}
+          }{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      {%- endpaginate -%}
+    ]
+  </script>
+</div>
+
+<script src="{{ 'reelshop.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Favorites",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Your favorites"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ff2d55"
+    },
+    {
+      "type": "text",
+      "id": "currency_symbol",
+      "label": "Default currency symbol",
+      "default": "₹"
+    },
+    {
+      "type": "text",
+      "id": "default_platform",
+      "label": "Default platform",
+      "default": "amazon",
+      "info": "Fallback when a product has no platform metafield: amazon, flipkart or meesho."
+    }
+  ]
+}
+{% endschema %}

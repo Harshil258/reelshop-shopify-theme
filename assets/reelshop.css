@@ -1,0 +1,869 @@
+/* ==========================================================================
+   ReelShop — TikTok/Reels-style affiliate storefront
+   One stylesheet for the feed section + favorites page.
+   Custom properties (set inline on .reelshop by the section):
+     --rs-accent   brand / CTA color
+     --rs-bg       feed background
+   ========================================================================== */
+
+.reelshop {
+  --rs-accent: #ff2d55;
+  --rs-bg: #000000;
+  --rs-text: #ffffff;
+  --rs-text-dim: rgba(255, 255, 255, 0.72);
+  --rs-surface: rgba(255, 255, 255, 0.1);
+  --rs-surface-solid: rgba(20, 20, 22, 0.92);
+  --rs-radius: 14px;
+  --rs-topbar-h: 52px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  background: #060607;
+  color: var(--rs-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+.reelshop *,
+.reelshop *::before,
+.reelshop *::after {
+  box-sizing: border-box;
+}
+
+.reelshop button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.reelshop a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Desktop "phone frame" ---------------------------------------------------- */
+.reel-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 100%;
+  background: var(--rs-bg);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .reel-frame {
+    max-width: 480px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Vertical feed (swipe up = next product) ---------------------------------- */
+.reel-feed {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  outline: none;
+}
+
+.reel-feed::-webkit-scrollbar {
+  display: none;
+}
+
+.reel-slide {
+  position: relative;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: #0b0b0d;
+}
+
+.reel-slide.rs-hidden {
+  display: none;
+}
+
+/* Horizontal media carousel (swipe left = more media for this product) ----- */
+.reel-track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.reel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.reel-media {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background: #101013;
+}
+
+.reel-media img,
+.reel-media video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Skeleton shimmer while media loads */
+.reel-media.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #101013 30%, #1c1c22 50%, #101013 70%);
+  background-size: 200% 100%;
+  animation: rs-shimmer 1.2s linear infinite;
+}
+
+@keyframes rs-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Readability scrim behind overlay UI */
+.reel-scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.reel-scrim--top {
+  inset: 0 0 auto 0;
+  height: 22%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+}
+
+/* Top bar ------------------------------------------------------------------ */
+.reel-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  min-height: var(--rs-topbar-h);
+}
+
+.reel-topbar__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 45%;
+}
+
+.reel-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reel-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.reel-iconbtn:active {
+  transform: scale(0.92);
+}
+
+.reel-iconbtn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reel-iconbtn .rs-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Search panel ------------------------------------------------------------- */
+.reel-searchpanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 7;
+  padding: 10px 12px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: rgba(10, 10, 12, 0.92);
+  backdrop-filter: blur(10px);
+  transform: translateY(-105%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.reel-searchpanel.is-open {
+  transform: translateY(0);
+}
+
+.reel-searchpanel__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.reel-searchpanel input[type="search"] {
+  flex: 1;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--rs-text);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.reel-searchpanel input[type="search"]:focus {
+  border-color: var(--rs-accent);
+}
+
+.reel-chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.reel-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.reel-chip {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-text-dim);
+  white-space: nowrap;
+}
+
+.reel-chip.is-active {
+  background: var(--rs-accent);
+  border-color: var(--rs-accent);
+  color: #fff;
+}
+
+/* Overlay product info ------------------------------------------------------ */
+.reel-info {
+  position: absolute;
+  left: 14px;
+  right: 84px; /* leave room for action rail */
+  bottom: 22px;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.reel-info > * {
+  pointer-events: auto;
+}
+
+.reel-info__platform {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reel-info__title {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.reel-info__rating {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffd76a;
+  letter-spacing: 0.02em;
+}
+
+.reel-info__desc {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--rs-text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reel-info__desc.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+}
+
+.reel-info__more {
+  background: none;
+  border: 0;
+  color: var(--rs-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 2px 0;
+  align-self: flex-start;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Price block */
+.reel-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reel-price__current {
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.reel-price__original {
+  font-size: 0.9rem;
+  color: var(--rs-text-dim);
+  text-decoration: line-through;
+}
+
+.reel-price__badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--rs-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+/* Primary affiliate CTA */
+.reel-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: stretch;
+  min-height: 52px;
+  padding: 12px 22px;
+  border-radius: var(--rs-radius);
+  background: var(--rs-accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.reel-cta:active {
+  transform: scale(0.97);
+}
+
+.reel-cta svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reel-cta.is-disabled {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--rs-text-dim);
+  pointer-events: none;
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Action rail (TikTok-style, right side) ----------------------------------- */
+.reel-rail {
+  position: absolute;
+  right: 10px;
+  bottom: 96px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.reel-rail__btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: #fff;
+}
+
+.reel-rail__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(6px);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.reel-rail__btn:active .reel-rail__icon {
+  transform: scale(0.88);
+}
+
+.reel-rail__icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reel-rail__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.reel-rail__btn.is-on .reel-rail__icon {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.reel-rail__btn.is-on .reel-rail__icon svg {
+  fill: var(--rs-accent);
+  stroke: var(--rs-accent);
+}
+
+.reel-rail__chip {
+  max-width: 76px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Carousel dots */
+.reel-dots {
+  position: absolute;
+  bottom: 82px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+.reel-dots:empty {
+  display: none;
+}
+
+.reel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.reel-dot.is-active {
+  width: 18px;
+  background: #fff;
+}
+
+/* Double-tap heart burst */
+.rs-heart {
+  position: absolute;
+  z-index: 5;
+  width: 90px;
+  height: 90px;
+  margin: -45px 0 0 -45px;
+  pointer-events: none;
+  animation: rs-heart-pop 0.8s ease forwards;
+}
+
+.rs-heart svg {
+  width: 100%;
+  height: 100%;
+  fill: var(--rs-accent);
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes rs-heart-pop {
+  0%   { transform: scale(0);   opacity: 0; }
+  25%  { transform: scale(1.2); opacity: 1; }
+  55%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1.15) translateY(-24px); opacity: 0; }
+}
+
+/* Onboarding hint ----------------------------------------------------------- */
+.reel-onboard {
+  position: absolute;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(10, 10, 12, 0.88);
+  backdrop-filter: blur(8px);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: rs-float 2.4s ease-in-out infinite;
+}
+
+@keyframes rs-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* Toast --------------------------------------------------------------------- */
+.reel-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 9;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111;
+  font-size: 0.84rem;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.reel-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Empty / end-of-feed states -------------------------------------------------- */
+.reel-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+  color: var(--rs-text-dim);
+  scroll-snap-align: start;
+}
+
+.reel-state strong {
+  color: var(--rs-text);
+  font-size: 1.05rem;
+}
+
+.reel-state .reel-cta {
+  align-self: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+}
+
+/* Sample badge (placeholder products before real data is added) -------------- */
+.rs-sample-badge {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  z-index: 4;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 215, 106, 0.92);
+  color: #3b2e00;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Poster fill for slides with no media at all */
+.reel-media--placeholder {
+  background: radial-gradient(120% 120% at 20% 10%, #2a2a33 0%, #101013 60%);
+}
+
+/* Video play indicator when paused */
+.rs-paused-badge {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.reel-media.is-paused .rs-paused-badge {
+  display: flex;
+}
+
+.rs-paused-badge span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.rs-paused-badge svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+}
+
+/* Favorites page -------------------------------------------------------------- */
+.reel-favpage {
+  --rs-accent: #ff2d55;
+  --rs-bg: #000000;
+  min-height: 60vh;
+  background: var(--rs-bg);
+  color: #fff;
+  padding: 24px 16px 64px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.reel-favpage__header {
+  max-width: 960px;
+  margin: 0 auto 20px;
+}
+
+.reel-favpage__title {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.reel-favpage__sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--rs-text-dim);
+}
+
+.reel-favgrid {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .reel-favgrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.reel-favcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--rs-radius);
+  overflow: hidden;
+  background: #141417;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.reel-favcard__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  background: #1c1c22;
+}
+
+.reel-favcard__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-favcard__title a {
+  color: inherit;
+}
+
+.reel-favcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+}
+
+.reel-favcard__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reel-favcard__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-weight: 800;
+}
+
+.reel-favcard__price .reel-price__original {
+  font-size: 0.78rem;
+}
+
+.reel-favcard__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.reel-favcard__actions .reel-cta {
+  flex: 1;
+  min-height: 42px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.reel-favcard__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  border-radius: var(--rs-radius);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--rs-text-dim);
+  transition: background 0.2s ease;
+}
+
+.reel-favcard__remove svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.reel-favempty {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--rs-text-dim);
+}
+
+.reel-favempty a {
+  color: var(--rs-accent);
+  font-weight: 700;
+}
+
+/* Accessibility & motion -------------------------------------------------------- */
+.reelshop :focus-visible,
+.reel-favpage :focus-visible {
+  outline: 2px solid var(--rs-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-feed {
+    scroll-behavior: auto;
+  }
+
+  .reel-onboard,
+  .reel-media.is-loading::after,
+  .rs-heart {
+    animation: none;
+  }
+
+  .reel-searchpanel {
+    transition: none;
+  }
+}

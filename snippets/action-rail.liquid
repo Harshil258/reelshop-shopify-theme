@@ -1,0 +1,43 @@
+{% comment %}
+  ReelShop action rail (TikTok-style right side column).
+  Accepts:
+    - category: category label shown as a chip (string)
+  Like/Favorite state is synced from localStorage by reelshop.js.
+{% endcomment %}
+<div class="reel-rail">
+  <button class="reel-rail__btn" type="button" data-action="like" aria-pressed="false" aria-label="Like this product">
+    <span class="reel-rail__icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 20.7C7.3 17.6 3.5 14.2 2.4 10.9 1.3 7.4 3.4 4.5 6.4 4.5c1.9 0 3.2 1 4.1 2.3l1.5 2.1 1.5-2.1c.9-1.3 2.2-2.3 4.1-2.3 3 0 5.1 2.9 4 6.4-1.1 3.3-4.9 6.7-9.6 9.8z"/>
+      </svg>
+    </span>
+    <span class="reel-rail__label">Like</span>
+  </button>
+
+  <button class="reel-rail__btn" type="button" data-action="favorite" aria-pressed="false" aria-label="Save to favorites">
+    <span class="reel-rail__icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6 3h12v18l-6-4.2L6 21z"/>
+      </svg>
+    </span>
+    <span class="reel-rail__label">Save</span>
+  </button>
+
+  <button class="reel-rail__btn" type="button" data-action="share" aria-label="Share this product">
+    <span class="reel-rail__icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="6" cy="12" r="2.6"/>
+        <circle cx="17.5" cy="5.5" r="2.6"/>
+        <circle cx="17.5" cy="18.5" r="2.6"/>
+        <path d="M8.4 10.8l6.8-4M8.4 13.2l6.8 4"/>
+      </svg>
+    </span>
+    <span class="reel-rail__label">Share</span>
+  </button>
+
+  {%- if category != blank -%}
+    <button class="reel-rail__chip" type="button" data-action="filter-category" aria-label="Show more in {{ category | escape }}">
+      {{ category | escape }}
+    </button>
+  {%- endif -%}
+</div>

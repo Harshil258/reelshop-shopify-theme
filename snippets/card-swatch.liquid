@@ -1,0 +1,45 @@
+{% if product.first_available_variant.title != 'Default Title' %}
+<div class="card-swatch-vari">
+  <div class="card-swatch-list is--row">
+    {%- for option in product.options_with_values -%}
+      {% assign optionVal = option.name | downcase %} 
+      {% if optionVal == 'color' %}
+        {%- for value in option.values -%}
+          <div class="card-swatch-item">
+          {% if value != 'Default Title' %}
+            
+             {%- for variant in product.variants -%}
+             {% if variant.title contains value %}
+               {% assign vari_id = variant.id %}
+               {% assign vari_available = variant.available %}
+             {% endif %}
+             {%- endfor -%}
+    
+            
+            
+            {% assign swatchImg =  value | replace: ' ','-' | downcase | remove: ' ' | append: '.png' | file_img_url %}
+    
+            {% assign beatles = swatchImg | split: "?v=" %}
+            {% assign showSwatchImg = false %}
+            {% for member in beatles %}
+              {% if forloop.index == 2 %}
+                {% assign showSwatchImg = true %}
+              {% endif %}
+            {% endfor %}
+            
+              
+                <a href="/products/{{ product.handle }}?variant={{ vari_id }}" class="{% if vari_available == false %}vari-not-available{% endif %} {% if showSwatchImg %}{% else %}vari-img-not-available{% endif %}">
+                  {% if showSwatchImg %}
+                    <img src="{{ swatchImg }}">
+                  {% endif %}
+                </a>
+              
+          {% endif %}
+          </div>
+          
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
