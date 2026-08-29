@@ -91,25 +91,28 @@
     endif
   endif
 
-  # Carousel images: metafield gallery, else native product images
-  assign image_urls = '' | split: ','
+  # Carousel images: metafield gallery, else native product images.
+  # Shopify Liquid has no "push" filter, so accumulate via capture + split.
   assign gallery_meta = mf.gallery_images.value
-  if gallery_meta != blank
-    for item in gallery_meta
-      if item.preview_image != blank
-        assign tmp_img = item.preview_image | image_url: width: 1080
-        assign image_urls = image_urls | push: tmp_img
-      elsif item contains '//' or item contains 'http'
-        assign image_urls = image_urls | push: item
-      endif
-    endfor
-  endif
-  if image_urls.size == 0
-    for img in product.images limit: 6
-      assign tmp_img = img | image_url: width: 1080
-      assign image_urls = image_urls | push: tmp_img
-    endfor
-  endif
+  capture gallery_str
+    if gallery_meta != blank
+      for item in gallery_meta
+        if item.preview_image != blank
+          echo item.preview_image | image_url: width: 1080
+          echo '|||'
+        elsif item contains '//' or item contains 'http'
+          echo item
+          echo '|||'
+        endif
+      endfor
+    else
+      for img in product.images limit: 6
+        echo img | image_url: width: 1080
+        echo '|||'
+      endfor
+    endif
+  endcapture
+  assign image_urls = gallery_str | split: '|||'
 
   # Poster frame while the video loads
   assign poster_url = image_urls[0] | default: ''
@@ -153,13 +156,15 @@
     {%- endif -%}
 
     {%- for img in image_urls -%}
-      <div class="reel-media is-loading">
-        <img
-          data-src="{{ img | escape }}"
-          alt="{{ product.title | escape }} — image {{ forloop.index }}"
-          decoding="async"
-        >
-      </div>
+      {%- unless img == blank -%}
+        <div class="reel-media is-loading">
+          <img
+            data-src="{{ img | escape }}"
+            alt="{{ product.title | escape }} — image {{ forloop.index }}"
+            decoding="async"
+          >
+        </div>
+      {%- endunless -%}
     {%- endfor -%}
 
     {%- if video_url == blank and image_urls.size == 0 -%}
