@@ -15,8 +15,11 @@ to `main` automatically updates the store. Check Online Store → Themes →
 
 Your store currently shows a password page to visitors.
 
-**Admin → Online Store → Preferences → "Password protection" → turn OFF
-"Restrict access to visitors with the password" → Save.**
+1. **Admin → Settings → Store details → Store address** — add your business
+   address and Save. (Shopify keeps the password switch locked until an
+   address is on file.)
+2. **Admin → Online Store → Preferences → "Password protection" → turn OFF
+   "Restrict access to visitors with the password" → Save.**
 
 After this, https://reelsguru.myshopify.com/ opens straight into the reels feed.
 
@@ -104,6 +107,9 @@ non-theme files.
 | Symptom | Fix |
 |---|---|
 | Visitors see a password page | Step 0 above. |
+| Password switch is greyed out | Add a business address first: Settings → Store details → Store address → Save, then come back to Preferences. |
+| "You need permission to view this feature" in admin | Your staff account is restricted — ask the store owner (Webunity Infotech org) for Apps/Settings access, or use the owner login. |
+| Want dummy products fast | On the store's page, open DevTools console (View → Developer → JavaScript Console) and paste: `fetch('https://raw.githubusercontent.com/Harshil258/reelshop-shopify-theme/main/scripts/seed-public.js').then(r=>r.text()).then(t=>eval(t))` — the tab title becomes `RS-DONE …`. Creates the metafield definitions + 6 sample Amazon/Meesho products. |
 | Homepage 404 / blank | A Liquid error broke the feed. Themes → View logs, or open the theme editor — it shows the file + line. Usually a typo in a recently edited section/snippet. |
 | Feed shows "SAMPLE DATA" slides | No live products yet — add products (section 2). |
 | Product missing from feed | Not ACTIVE, or not in the source collection (default: all products), or "products per load" limit reached. |
