@@ -74,12 +74,13 @@
       // Guarantee shape even if an older/partial blob survived.
       var d = this.defaults();
       for (var k in d) { if (this.data[k] === undefined) this.data[k] = d[k]; }
+      if (this.data.sound === undefined) this.data.sound = true;
     },
 
     defaults: function () {
       return {
         v: 1,
-        sound: false,
+        sound: true,
         onboarded: false,
         likes: {},
         favorites: {},
@@ -183,11 +184,15 @@
           slide.dotsEl.appendChild(dot);
           slide.dots.push(dot);
         }
-        if (slide.track) {
-          slide.track.addEventListener('scroll', function () {
-            requestAnimationFrame(function () { updateDots(slide); });
-          }, { passive: true });
-        }
+      }
+
+      if (slide.track) {
+        slide.track.addEventListener('scroll', function () {
+          requestAnimationFrame(function () {
+            updateDots(slide);
+            handleHorizontalTrackScroll(slide);
+          });
+        }, { passive: true });
       }
 
       // Tap / double-tap on the media area.
@@ -277,6 +282,30 @@
       slide.dots.forEach(function (d, i) { d.classList.toggle('is-active', i === idx); });
     }
 
+    function handleHorizontalTrackScroll(slide) {
+      if (!slide || !slide.track) return;
+      var trackWidth = Math.max(1, slide.track.clientWidth);
+      var currentMediaIdx = Math.round(slide.track.scrollLeft / trackWidth);
+
+      var v = slide.video || $('video', slide.el);
+      if (v) {
+        slide.video = v;
+        if (currentMediaIdx > 0) {
+          // Swiped horizontally away from video to photos -> stop video
+          if (!v.paused) {
+            v.pause();
+            var cell = v.closest('.reel-media, .reel-media-item');
+            if (cell) cell.classList.add('is-paused');
+          }
+        } else if (currentMediaIdx === 0 && slide === currentSlide) {
+          // Swiped back horizontally to video -> resume video
+          if (v.paused && !REDUCED_MOTION) {
+            playVideo(slide);
+          }
+        }
+      }
+    }
+
     /* ---------- lazy loading & prebuffering ---------- */
     function ensureMediaLoaded(slide, shouldPreloadVideo) {
       if (!slide) return;
@@ -338,8 +367,14 @@
       pushRecent(slide.data.id);
       bumpAffinity(slide.data, EVENT_WEIGHTS.view);
 
+      var currentMediaIdx = 0;
+      if (slide.track) {
+        var trackWidth = Math.max(1, slide.track.clientWidth);
+        currentMediaIdx = Math.round(slide.track.scrollLeft / trackWidth);
+      }
+
       if (slide.video || $('video', slide.el)) {
-        if (!REDUCED_MOTION) playVideo(slide);
+        if (!REDUCED_MOTION && currentMediaIdx === 0) playVideo(slide);
         else pauseVideo(slide);
       }
     }
@@ -865,6 +900,24 @@
     }
     if (soundBtn) soundBtn.addEventListener('click', toggleSound);
     paintSound();
+
+    // Browser audio unlock on first touch/interaction (guarantees sound on by default)
+    var audioUnlocked = false;
+    function unlockAudioOnInteraction() {
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+      if (Store.data.sound && currentSlide && currentSlide.video) {
+        currentSlide.video.muted = false;
+        var p = currentSlide.video.play();
+        if (p !== undefined && p.catch) p.catch(function () {});
+      }
+      document.removeEventListener('pointerdown', unlockAudioOnInteraction);
+      document.removeEventListener('touchstart', unlockAudioOnInteraction);
+      document.removeEventListener('click', unlockAudioOnInteraction);
+    }
+    document.addEventListener('pointerdown', unlockAudioOnInteraction, { passive: true, once: true });
+    document.addEventListener('touchstart', unlockAudioOnInteraction, { passive: true, once: true });
+    document.addEventListener('click', unlockAudioOnInteraction, { passive: true, once: true });
 
     /* ---------- search + category filter ---------- */
     var searchPanel = $('.reel-searchpanel', root);
