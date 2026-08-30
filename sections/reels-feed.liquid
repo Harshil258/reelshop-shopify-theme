@@ -14,10 +14,8 @@
 
 {{ 'reelshop.css' | asset_url | stylesheet_tag }}
 
-{%- liquid
-  assign feed_collection = collections[section.settings.source_collection] | default: collections.all
-  assign limit = section.settings.products_per_load | at_most: 50 | at_least: 1
--%}
+{%- assign feed_collection = collections[section.settings.source_collection] | default: collections.all -%}
+{%- assign limit = section.settings.products_per_load | at_most: 50 | at_least: 1 -%}
 
 {%- if template.name == 'index' -%}
   <style>

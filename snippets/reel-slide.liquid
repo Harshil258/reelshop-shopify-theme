@@ -3,138 +3,95 @@
   Accepts:
     - product:          the product to render
     - section_settings: the reels-feed section settings
-
-  Metafields (namespace "reelshop") — all optional except affiliate_url,
-  with graceful fallbacks to native product fields:
-    reelshop.video_url         url (or video file_reference) — promo video
-    reelshop.affiliate_url     url  — Amazon/Flipkart/Meesho referral link
-    reelshop.platform          single_line_text — amazon | flipkart | meesho
-    reelshop.price             number/money — display price
-    reelshop.original_price    number/money — strikethrough price
-    reelshop.currency_symbol   single_line_text — e.g. "₹"
-    reelshop.category          single_line_text — used by the algorithm
-    reelshop.tags_extra        list.single_line_text — used by the algorithm
-    reelshop.gallery_images    list.file_reference / list.url — carousel images
-    reelshop.rating            number (0–5)
+  Uses only conservative Liquid constructs for maximum server compatibility.
 {% endcomment %}
 
-{%- liquid
-  assign mf = product.metafields.reelshop
+{%- assign mf = product.metafields.reelshop -%}
+{%- assign affiliate_url = mf.affiliate_url -%}
 
-  # Affiliate link (required for monetization)
-  assign affiliate_url = mf.affiliate_url
+{%- assign platform = mf.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip -%}
+{%- assign platform_label = 'Store' -%}
+{%- if platform == 'amazon' -%}
+  {%- assign platform_label = 'Amazon' -%}
+{%- elsif platform == 'flipkart' -%}
+  {%- assign platform_label = 'Flipkart' -%}
+{%- elsif platform == 'meesho' -%}
+  {%- assign platform_label = 'Meesho' -%}
+{%- elsif platform != blank -%}
+  {%- assign platform_label = platform | capitalize -%}
+{%- endif -%}
 
-  # Platform
-  assign platform = mf.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip
-  case platform
-    when 'amazon'
-      assign platform_label = 'Amazon'
-    when 'flipkart'
-      assign platform_label = 'Flipkart'
-    when 'meesho'
-      assign platform_label = 'Meesho'
-    else
-      assign platform_label = platform | capitalize
-  endcase
-  if platform_label == blank
-    assign platform_label = 'Store'
-  endif
+{%- assign symbol = mf.currency_symbol | default: section_settings.currency_symbol -%}
+{%- assign mf_price = mf.price -%}
+{%- assign mf_original = mf.original_price -%}
+{%- assign current_display = '' -%}
+{%- assign original_display = '' -%}
+{%- assign discount_pct = 0 -%}
 
-  # Price: prefer metafields, fall back to native product price
-  assign symbol = mf.currency_symbol | default: section_settings.currency_symbol
-  assign mf_price = mf.price
-  assign mf_original = mf.original_price
-  assign current_display = ''
-  assign original_display = ''
-  assign discount_pct = 0
+{%- if mf_price != blank -%}
+  {%- assign price_num = mf_price | times: 1.0 -%}
+  {%- assign price_str = price_num | append: '' -%}
+  {%- assign price_parts = price_str | split: '.' -%}
+  {%- assign price_clean = price_parts[0] -%}
+  {%- if price_parts[1] != blank and price_parts[1] != '0' -%}
+    {%- assign price_clean = price_clean | append: '.' | append: price_parts[1] -%}
+  {%- endif -%}
+  {%- assign current_display = symbol | append: price_clean -%}
+  {%- if mf_original != blank -%}
+    {%- assign orig_num = mf_original | times: 1.0 -%}
+    {%- assign orig_str = orig_num | append: '' -%}
+    {%- assign orig_parts = orig_str | split: '.' -%}
+    {%- assign orig_clean = orig_parts[0] -%}
+    {%- if orig_parts[1] != blank and orig_parts[1] != '0' -%}
+      {%- assign orig_clean = orig_clean | append: '.' | append: orig_parts[1] -%}
+    {%- endif -%}
+    {%- assign original_display = symbol | append: orig_clean -%}
+    {%- if orig_num > price_num and price_num > 0 -%}
+      {%- assign discount_pct = orig_num | minus: price_num | times: 100 | divided_by: orig_num -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- else -%}
+  {%- assign current_display = product.price | money -%}
+  {%- if product.compare_at_price > product.price -%}
+    {%- assign original_display = product.compare_at_price | money -%}
+    {%- assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+  {%- endif -%}
+{%- endif -%}
 
-  if mf_price != blank
-    assign price_num = mf_price | times: 1.0
-    assign price_str = price_num | append: ''
-    assign price_parts = price_str | split: '.'
-    assign price_clean = price_parts[0]
-    if price_parts[1] != blank and price_parts[1] != '0'
-      assign price_clean = price_clean | append: '.' | append: price_parts[1]
-    endif
-    assign current_display = symbol | append: price_clean
+{%- assign video_meta = mf.video_url -%}
+{%- assign video_url = '' -%}
+{%- if video_meta != blank -%}
+  {%- if video_meta.media_type == 'video' -%}
+    {%- assign video_url = video_meta.sources[0].url | default: '' -%}
+  {%- else -%}
+    {%- assign video_url = video_meta | append: '' -%}
+  {%- endif -%}
+{%- endif -%}
 
-    if mf_original != blank
-      assign orig_num = mf_original | times: 1.0
-      assign orig_str = orig_num | append: ''
-      assign orig_parts = orig_str | split: '.'
-      assign orig_clean = orig_parts[0]
-      if orig_parts[1] != blank and orig_parts[1] != '0'
-        assign orig_clean = orig_clean | append: '.' | append: orig_parts[1]
-      endif
-      assign original_display = symbol | append: orig_clean
+{%- capture gallery_str -%}
+{%- if mf.gallery_images.value != blank -%}
+{%- for item in mf.gallery_images.value -%}
+{%- if item.preview_image != blank -%}{{ item.preview_image | image_url: width: 1080 }}|||{%- elsif item contains '//' -%}{{ item }}|||{%- endif -%}
+{%- endfor -%}
+{%- else -%}
+{%- for img in product.images limit: 6 -%}{{ img | image_url: width: 1080 }}|||{%- endfor -%}
+{%- endif -%}
+{%- endcapture -%}
+{%- assign image_urls = gallery_str | split: '|||' -%}
 
-      if orig_num > price_num and price_num > 0
-        assign discount_pct = orig_num | minus: price_num | times: 100 | divided_by: orig_num
-      endif
-    endif
-  else
-    assign current_display = product.price | money
-    if product.compare_at_price > product.price
-      assign original_display = product.compare_at_price | money
-      assign discount_pct = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price
-    endif
-  endif
+{%- assign poster_url = '' -%}
+{%- if image_urls.size > 0 -%}
+  {%- assign poster_url = image_urls[0] -%}
+{%- elsif product.featured_image != blank -%}
+  {%- assign poster_url = product.featured_image | image_url: width: 1080 -%}
+{%- endif -%}
 
-  # Promo video: url metafield or uploaded video file reference
-  assign video_meta = mf.video_url
-  assign video_url = ''
-  if video_meta != blank
-    if video_meta.media_type == 'video'
-      assign video_url = video_meta.sources[0].url | default: ''
-    else
-      assign video_url = video_meta | append: ''
-    endif
-  endif
-
-  # Carousel images: metafield gallery, else native product images.
-  # Shopify Liquid has no "push" filter, so accumulate via capture + split.
-  assign gallery_meta = mf.gallery_images.value
-  capture gallery_str
-    if gallery_meta != blank
-      for item in gallery_meta
-        if item.preview_image != blank
-          echo item.preview_image | image_url: width: 1080
-          echo '|||'
-        elsif item contains '//' or item contains 'http'
-          echo item
-          echo '|||'
-        endif
-      endfor
-    else
-      for img in product.images limit: 6
-        echo img | image_url: width: 1080
-        echo '|||'
-      endfor
-    endif
-  endcapture
-  assign image_urls = gallery_str | split: '|||'
-
-  # Poster frame while the video loads
-  assign poster_url = image_urls[0] | default: ''
-  if poster_url == blank and product.featured_image != blank
-    assign poster_url = product.featured_image | image_url: width: 1080
-  endif
-
-  # Category + tags for the recommendation algorithm
-  assign category = mf.category | default: product.type | default: product.tags.first | default: 'General'
-  assign algo_tags = mf.tags_extra.value | default: product.tags
-  if algo_tags.size > 6
-    assign algo_tags = algo_tags | slice: 0, 6
-  endif
-
-  assign rating = mf.rating
-
-  # Description (plain text) + share URL (deep link into the feed)
-  assign desc_text = product.description | strip_html | truncate: 600
-  assign share_url = request.origin | append: routes.root_url | append: '?product=' | append: product.handle
-
-  assign cta_text = section_settings.cta_text | default: 'Buy on {{platform}}' | replace: '{{platform}}', platform_label
--%}
+{%- assign category = mf.category | default: product.type | default: product.tags.first | default: 'General' -%}
+{%- assign algo_tags = mf.tags_extra.value | default: product.tags -%}
+{%- assign rating = mf.rating -%}
+{%- assign desc_text = product.description | strip_html | truncate: 600 -%}
+{%- assign share_url = shop.url | append: '/?product=' | append: product.handle -%}
+{%- assign cta_text = section_settings.cta_text | default: 'Buy on {{platform}}' | replace: '{{platform}}', platform_label -%}
 
 <article class="reel-slide" data-handle="{{ product.handle | escape }}" aria-label="{{ product.title | escape }}">
   <div class="reel-track">
