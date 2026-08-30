@@ -368,7 +368,7 @@
 
     function playVideo(slide) {
       if (!slide) return;
-      ensureMediaLoaded(slide);
+      ensureMediaLoaded(slide, true);
       var v = slide.video || $('video', slide.el);
       if (!v) return;
       slide.video = v;
