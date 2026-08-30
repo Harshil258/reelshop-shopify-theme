@@ -75,52 +75,52 @@
             {%- render 'reel-slide', product: item, section_settings: section.settings -%}
           {%- endunless -%}
         {%- endfor -%}
-
-        {%- if feed_collection.products.size < 6 -%}
-          {%- render 'reel-slide-sample',
-            index: 1,
-            title: 'Portable Mini Juicer Blender 380ml',
-            platform: 'amazon',
-            price: 799,
-            original_price: 1499,
-            category: 'Kitchen',
-            rating: '4.4',
-            desc: 'Rechargeable portable mini blender for shakes, juices and smoothies with 6 stainless steel blades.',
-            affiliate_url: 'https://www.amazon.in/s?k=portable+mini+juicer+blender',
-            video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-            image_url: 'https://images.unsplash.com/photo-1570857502809-08184874388e?w=800&auto=format&fit=crop&q=80',
-            section_settings: section.settings
-          -%}
-          {%- render 'reel-slide-sample',
-            index: 2,
-            title: 'RGB LED Strip Lights 5m with Remote',
-            platform: 'meesho',
-            price: 349,
-            original_price: 999,
-            category: 'Home Decor',
-            rating: '4.2',
-            desc: 'Colour-changing 5-meter RGB LED lights with remote control and self-adhesive back for room & desk setup.',
-            affiliate_url: 'https://www.meesho.com/search?q=rgb+led+strip+lights',
-            video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-            image_url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80',
-            section_settings: section.settings
-          -%}
-          {%- render 'reel-slide-sample',
-            index: 3,
-            title: 'TWS Wireless Earbuds with ANC',
-            platform: 'flipkart',
-            price: 1299,
-            original_price: 2999,
-            category: 'Tech',
-            rating: '4.5',
-            desc: 'Bluetooth 5.3 earbuds with charging case, 30 hours battery backup, touch controls and noise reduction.',
-            affiliate_url: 'https://www.flipkart.com/search?q=tws+wireless+earbuds',
-            video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-            image_url: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
-            section_settings: section.settings
-          -%}
-        {%- endif -%}
       {%- endpaginate -%}
+
+      {%- if feed_collection.products.size < 6 -%}
+        {%- render 'reel-slide-sample',
+          index: 1,
+          title: 'Portable Mini Juicer Blender 380ml',
+          platform: 'amazon',
+          price: 799,
+          original_price: 1499,
+          category: 'Kitchen',
+          rating: '4.4',
+          desc: 'Rechargeable portable mini blender for shakes, juices and smoothies with 6 stainless steel blades.',
+          affiliate_url: 'https://www.amazon.in/s?k=portable+mini+juicer+blender',
+          video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+          image_url: 'https://images.unsplash.com/photo-1570857502809-08184874388e?w=800&auto=format&fit=crop&q=80',
+          section_settings: section.settings
+        -%}
+        {%- render 'reel-slide-sample',
+          index: 2,
+          title: 'RGB LED Strip Lights 5m with Remote',
+          platform: 'meesho',
+          price: 349,
+          original_price: 999,
+          category: 'Home Decor',
+          rating: '4.2',
+          desc: 'Colour-changing 5-meter RGB LED lights with remote control and self-adhesive back for room & desk setup.',
+          affiliate_url: 'https://www.meesho.com/search?q=rgb+led+strip+lights',
+          video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+          image_url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80',
+          section_settings: section.settings
+        -%}
+        {%- render 'reel-slide-sample',
+          index: 3,
+          title: 'TWS Wireless Earbuds with ANC',
+          platform: 'flipkart',
+          price: 1299,
+          original_price: 2999,
+          category: 'Tech',
+          rating: '4.5',
+          desc: 'Bluetooth 5.3 earbuds with charging case, 30 hours battery backup, touch controls and noise reduction.',
+          affiliate_url: 'https://www.flipkart.com/search?q=tws+wireless+earbuds',
+          video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+          image_url: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
+          section_settings: section.settings
+        -%}
+      {%- endif -%}
 
       <div class="reel-state reel-state--empty" hidden>
         <strong>No matching products</strong>
