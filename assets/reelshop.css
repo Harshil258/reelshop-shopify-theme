@@ -633,9 +633,10 @@
 
 .reel-onboard.is-dismissed,
 .reel-onboard[hidden] {
-  display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  visibility: hidden !important;
+  transform: translateX(-50%) translateY(12px) !important;
 }
 
 @keyframes rs-float {

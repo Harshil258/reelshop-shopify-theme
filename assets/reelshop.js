@@ -593,18 +593,25 @@
       onboardEl.classList.add('is-dismissed');
       setTimeout(function () {
         if (onboardEl) onboardEl.hidden = true;
-      }, 350);
+      }, 400);
       Store.data.onboarded = true;
       Store.save();
     }
 
-    if (onboardEl && !Store.data.onboarded) {
-      onboardEl.hidden = false;
-      ['pointerdown', 'touchstart', 'click', 'scroll'].forEach(function (evt) {
-        window.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
-        if (feed) feed.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
-      });
-      setTimeout(dismissOnboarding, 4500);
+    if (onboardEl) {
+      if (Store.data.onboarded) {
+        onboardEl.hidden = true;
+        onboardEl.classList.add('is-dismissed');
+      } else {
+        onboardEl.hidden = false;
+        setTimeout(function () {
+          ['pointerdown', 'touchstart', 'click', 'scroll'].forEach(function (evt) {
+            window.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
+            if (feed) feed.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
+          });
+        }, 400);
+        setTimeout(dismissOnboarding, 5000);
+      }
     }
 
     function toast(msg) {
