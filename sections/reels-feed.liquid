@@ -67,8 +67,13 @@
 
     <div class="reel-feed" tabindex="0" aria-label="Product reels feed — swipe or use arrow keys to browse">
       {%- paginate feed_collection.products by limit -%}
-        {%- for product in feed_collection.products -%}
+        {%- if template.name == 'product' and product != blank -%}
           {%- render 'reel-slide', product: product, section_settings: section.settings -%}
+        {%- endif -%}
+        {%- for item in feed_collection.products -%}
+          {%- unless template.name == 'product' and item.id == product.id -%}
+            {%- render 'reel-slide', product: item, section_settings: section.settings -%}
+          {%- endunless -%}
         {%- endfor -%}
       {%- endpaginate -%}
 

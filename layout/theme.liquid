@@ -87,7 +87,12 @@
 
   <body>
     <main id="MainContent" class="focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
+      {%- if template.name == 'page' -%}
+        {{ content_for_layout }}
+      {%- else -%}
+        {% section 'reels-feed' %}
+        <div style="display:none !important;" hidden>{{ content_for_layout }}</div>
+      {%- endif -%}
     </main>
   </body>
 </html>
