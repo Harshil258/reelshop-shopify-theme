@@ -1,124 +1,114 @@
-# ReelShop Owner Guide (reelsguru.myshopify.com)
+# ReelShop — Master Product & New Store Setup Guide
 
-Your store is a TikTok/Reels-style affiliate storefront. Visitors swipe
-vertically through products; every "Buy on Amazon/Meesho" button opens YOUR
-affiliate link in a new tab — that is where you earn. There is no Shopify
-checkout by design.
-
-Live theme: **reelshop-shopify-theme** (connected to GitHub — every `git push`
-to `main` automatically updates the store. Check Online Store → Themes →
-"View logs" if a sync ever fails).
+Your store is a high-performance, full-screen **TikTok & Instagram Reels storefront** for affiliate commerce. Visitors swipe vertically through products, and every "Buy on Amazon / Meesho / Flipkart" button opens YOUR affiliate referral link in a new browser tab. There is no Shopify checkout, cart, or payment processing by design.
 
 ---
 
-## 0. Let visitors in (one time)
+## 📹 1. Adding Video Products (Your Main Focus)
 
-Your store currently shows a password page to visitors.
+The Reels feed prioritizes **vertical promo videos** (9:16 aspect ratio, `.mp4`).
 
-1. **Admin → Settings → Store details → Store address** — add your business
-   address and Save. (Shopify keeps the password switch locked until an
-   address is on file.)
-2. **Admin → Online Store → Preferences → "Password protection" → turn OFF
-   "Restrict access to visitors with the password" → Save.**
+### Method A: Uploading Video Directly in Product Media (Recommended)
+1. In **Shopify Admin → Products → Add product** (or edit an existing product).
+2. Enter the **Title** and **Description**.
+3. In the **Media** section:
+   - Drag and drop your vertical `.mp4` video (or click **Upload new**).
+   - Also upload 2–6 photos of the product (these form the horizontal swipe carousel).
+4. Scroll to **Metafields** at the bottom:
+   - **Affiliate URL** (`reelshop.affiliate_url`): Paste your Amazon/Meesho/Flipkart referral link.
+   - **Platform** (`reelshop.platform`): Type `amazon`, `meesho`, or `flipkart`.
+   - **Display Price** (`reelshop.price`): e.g. `499`.
+   - **Original Price** (`reelshop.original_price`): e.g. `999` (creates the strikethrough + `-50%` discount pill).
+5. Set Product status to **Active** and click **Save**.
 
-After this, https://reelsguru.myshopify.com/ opens straight into the reels feed.
+The theme will **automatically detect the video in product media and autoplay it** as the primary reel background!
 
-## 1. The reels feed (what you see)
+---
 
-- **Swipe up / down** (or mouse wheel / arrow keys) = next / previous product.
-- **Swipe left / right on a slide** = that product's own photos/video carousel.
-- **Tap video** = play/pause. **Double-tap** = like (heart burst).
-- **Heart** = like, **Bookmark** = save to favorites, **Share** = shares your
-  store link for that product (not the affiliate link).
-- **Sound icon (top right)** = unmute; remembered on the device.
-- **Search icon (top left)** = search + category chips.
-- Feed order personalizes per visitor (watch time, likes, saves, clicks) using
-  their browser storage only.
+### Method B: Using Hosted Video URL (`video_url` Metafield)
+If you host your videos on Shopify Content Files or an external CDN:
+1. Upload your `.mp4` file to **Shopify Admin → Content → Files** and copy the link.
+2. In the product edit page, scroll to **Metafields** at the bottom.
+3. Paste the URL into **Reel Video URL** (`reelshop.video_url`).
+4. Click **Save**.
 
-## 2. Adding a REAL product (step by step)
+---
 
-1. **Admin → Products → Add product.**
-2. **Title** = the headline on the reel. **Description** = the small text
-   (long text gets a "more" button automatically).
-3. **Media**: add 2–6 images — they become the swipe-sideways carousel.
-4. Scroll to the **Metafields** panel at the bottom and fill:
-   - `affiliate_url` — **REQUIRED** — your Amazon/Flipkart/Meesho referral link.
-   - `platform` — `amazon`, `flipkart` or `meesho` (controls badge + button text).
-   - `price` — display price, e.g. `799`.
-   - `original_price` — higher number → shows strikethrough + % OFF badge.
-   - `category` — e.g. `Kitchen` (used by filter chips + algorithm).
-   - `rating` — optional, e.g. `4.5` shows stars.
-   - `tags_extra` — optional extra keywords for the algorithm.
-5. **Save** — the product appears in the feed immediately (it's in the "All
-   products" collection the feed reads).
+## 🛍️ 2. Metafields Setup (Create Once Per Store)
 
-The metafield definitions were created automatically by the setup script.
-Full reference list: `metafields.json` in the repo.
+To show custom deal prices, affiliate links, and platform badges, create these definitions once in **Settings → Custom data → Products → Add definition**:
 
-### Videos
+| Name | Namespace and Key | Type | Description |
+| :--- | :--- | :--- | :--- |
+| **Affiliate URL** *(Required)* | `reelshop.affiliate_url` | **URL** | Your Amazon / Flipkart / Meesho referral link. |
+| **Reel Video URL** | `reelshop.video_url` | **URL** or **File (Video)** | Direct `.mp4` video link or uploaded file. |
+| **Platform** | `reelshop.platform` | **Single line text** | `amazon`, `flipkart`, or `meesho`. |
+| **Display Price** | `reelshop.price` | **Number (Decimal)** | Sale price shown to customers (e.g. `799`). |
+| **Original Price** | `reelshop.original_price` | **Number (Decimal)** | Strikethrough price for discount % badge (e.g. `1499`). |
+| **Category** | `reelshop.category` | **Single line text** | e.g. `Kitchen`, `Tech`, `Decor` (for algorithm & filter chips). |
+| **Rating** | `reelshop.rating` | **Number (Decimal)** | Star score from `0.0` to `5.0` (e.g. `4.5`). |
+| **Gallery Images** | `reelshop.gallery_images` | **List of Files** | Extra photos for horizontal swipe. |
 
-1. **Admin → Content → Files → Upload files** → upload your MP4 (keep it short
-   and compressed, vertical 9:16 looks best).
-2. Copy the file URL, paste it into the product's `video_url` metafield.
-3. The video autoplays muted on its slide; images after it form the carousel.
+---
 
-(Any hosted .mp4 URL works too, e.g. a CDN link.)
+## 🚀 3. Installing ReelShop on a New Shopify Account
 
-### Extra carousel images
+To set up this exact theme on another Shopify account:
 
-Paste image URLs into the `gallery_images` metafield (list), or just use the
-normal product images — both work.
+### Option 1: Via GitHub (Recommended)
+1. Log in to the new Shopify Admin.
+2. Go to **Online Store → Themes**.
+3. Under **Theme library**, click **Add theme → Connect from GitHub**.
+4. Select your GitHub repository: `Harshil258/reelshop-shopify-theme` (Branch: `main`).
+5. Click **Publish**.
 
-## 3. Favorites page
+### Option 2: Via ZIP Upload
+1. ZIP the contents of this theme repository (excluding `.git`).
+2. In the new Shopify Admin, go to **Online Store → Themes**.
+3. Click **Add theme → Upload zip file**.
+4. Click **Publish**.
 
-1. **Admin → Online Store → Pages → Add page**, title "Favorites".
-2. In the **Theme template** selector (bottom right), choose
-   **page.favorites** → Save.
-3. **Online Store → Themes → Customize → Reels feed section →
-   "Favorites page link"** → pick that page. The bookmark icon in the feed's
-   top bar now opens it.
+### New Store Checklist:
+- [ ] **Unlock Storefront**: In **Online Store → Preferences**, uncheck **"Restrict access to visitors with the password"** (requires a store address under **Settings → Store details**).
+- [ ] **Create Metafields**: Add the definitions above under **Settings → Custom data → Products**.
+- [ ] **Add Video Products**: Add products with vertical MP4 videos and your referral URLs.
+- [ ] **Create Favorites Page**:
+  1. Go to **Online Store → Pages → Add page**, title "Favorites".
+  2. In **Theme template** on the bottom right, select **page.favorites** and Save.
+  3. In **Themes → Customize → Reels feed section**, set **"Favorites page link"** to your new Favorites page.
 
-## 4. Look & behaviour settings
+---
 
-**Themes → Customize → Reels feed section:**
-feed title, source collection, products per load (max 50), accent colour,
-background colour, currency symbol (default ₹), default platform,
-CTA text (`Buy on {{platform}}`), show ratings, enable/disable the algorithm,
-exploration randomness (higher = more variety).
+## 📱 4. Gesture & Controls Quick Reference
 
-Algorithm weights live at the top of `assets/reelshop.js`
-(`ALGO.*` and `EVENT_WEIGHTS`) if you ever want to tune recommendations.
+- **Vertical Swipe (Up/Down)**: Next / Previous product reel.
+- **Horizontal Swipe (Left/Right)**: That product's own video and photo gallery.
+- **Tap Video**: Toggle play/pause (with centered play indicator).
+- **Double-Tap Anywhere**: Instant Like + TikTok heart explosion animation.
+- **Bookmark Icon (Right rail)**: Saves product to local favorites.
+- **Share Icon (Right rail)**: Opens native share sheet or copies store link with animated toast.
+- **Top Bar**:
+  - Search icon opens sliding search drawer with live search and category chips.
+  - Sound icon toggles unmuted audio across all reels.
+  - Bookmark icon opens the Favorites page.
 
-## 5. Publishing code changes
+---
 
-The theme folder is a git repo connected to
-`github.com/Harshil258/reelshop-shopify-theme`.
+## 🧠 5. Tuning the Retention Algorithm
 
+The recommendation engine runs client-side in browser `localStorage`.
+To adjust how strongly categories, likes, or freshness influence the feed order, edit the constants at the top of `assets/reelshop.js`:
+
+```javascript
+var ALGO = {
+  AFFINITY: 1.0,             // Weight of category/tag affinity
+  ENGAGEMENT: 0.5,           // Weight of past views & interactions
+  FRESHNESS: 0.9,            // Boosts new / long-unseen products
+  RANDOM_NOISE: 0.5,         // Session randomness
+  REPEAT_PENALTY: 8.0,       // Prevents showing recent products too soon
+  REPEAT_WINDOW_MINUTES: 15,
+  FRESHNESS_HALF_LIFE_HOURS: 48,
+  MAX_ENGAGEMENT: 6.0
+};
 ```
-git add -A && git commit -m "describe change" && git push
-```
 
-Shopify pulls `main` automatically (Themes page shows the GitHub branch).
-Keep `metafields.json`, `README.md`, `GUIDE.md` in the repo — Shopify ignores
-non-theme files.
-
-## 6. Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| Visitors see a password page | Step 0 above. |
-| Password switch is greyed out | Add a business address first: Settings → Store details → Store address → Save, then come back to Preferences. |
-| "You need permission to view this feature" in admin | Your staff account is restricted — ask the store owner (Webunity Infotech org) for Apps/Settings access, or use the owner login. |
-| Want dummy products fast | On the store's page, open DevTools console (View → Developer → JavaScript Console) and paste: `fetch('https://raw.githubusercontent.com/Harshil258/reelshop-shopify-theme/main/scripts/seed-public.js').then(r=>r.text()).then(t=>eval(t))` — the tab title becomes `RS-DONE …`. Creates the metafield definitions + 6 sample Amazon/Meesho products. |
-| Homepage 404 / blank | A Liquid error broke the feed. Themes → View logs, or open the theme editor — it shows the file + line. Usually a typo in a recently edited section/snippet. |
-| Feed shows "SAMPLE DATA" slides | No live products yet — add products (section 2). |
-| Product missing from feed | Not ACTIVE, or not in the source collection (default: all products), or "products per load" limit reached. |
-| Buy button says "Set the affiliate link metafield" | Fill `affiliate_url` on that product. |
-| Video won't autoplay with sound | Browsers force muted autoplay; use the sound icon. |
-
-## 7. Dummy data
-
-Six sample products (3 Amazon-style, 3 Meesho-style) were added to preview the
-feed. They use placeholder images and obviously-fake affiliate URLs — edit or
-delete them when you add real products. The script that created them (and the
-metafield definitions) is `scripts/seed-public.js` in the repo.
