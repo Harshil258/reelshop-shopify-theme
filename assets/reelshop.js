@@ -704,45 +704,88 @@
     function injectSampleSlides(container) {
       var samples = [
         {
-          id: 'sample-1', handle: 'sample-mini-blender', title: 'Portable Mini Blender (Sample)',
-          description: 'This is placeholder sample data so you can preview the feed. Add your own products in Shopify admin — see the README.',
-          category: 'Kitchen', tags: ['sample', 'gadgets'], platform: 'amazon', platformLabel: 'Amazon',
-          priceDisplay: '₹799', originalPriceDisplay: '₹1,299', discountPct: 38, rating: 4.4
+          id: 'demo-blender', handle: 'demo-mini-blender', title: 'Portable Mini Juicer Blender', emoji: '🥤',
+          description: 'USB rechargeable 380ml blender for juices, shakes & baby food. 6 stainless blades, one-touch operation.',
+          category: 'Kitchen', tags: ['kitchen', 'gadgets'], platform: 'amazon', platformLabel: 'Amazon',
+          aff: 'https://www.amazon.in/s?k=portable+mini+blender',
+          priceDisplay: '₹799', originalPriceDisplay: '₹1,499', discountPct: 47, rating: 4.3
         },
         {
-          id: 'sample-2', handle: 'sample-led-strip', title: 'RGB LED Strip Lights 5m (Sample)',
-          description: 'Placeholder sample slide. Replace me by creating a product with reelshop metafields.',
-          category: 'Home Decor', tags: ['sample', 'lights'], platform: 'flipkart', platformLabel: 'Flipkart',
-          priceDisplay: '₹499', originalPriceDisplay: '₹999', discountPct: 50, rating: 4.2
+          id: 'demo-led-strip', handle: 'demo-led-strip', title: 'RGB LED Strip Lights 5m', emoji: '💡',
+          description: 'Colour-changing strip with remote & app control. 16 colours, cuttable, sticky back — bedroom favourite.',
+          category: 'Home Decor', tags: ['lights', 'room'], platform: 'meesho', platformLabel: 'Meesho',
+          aff: 'https://www.meesho.com/search?q=rgb+led+strip+lights',
+          priceDisplay: '₹349', originalPriceDisplay: '₹999', discountPct: 65, rating: 4.1
         },
         {
-          id: 'sample-3', handle: 'sample-phone-stand', title: 'Adjustable Phone Stand (Sample)',
-          description: 'One more placeholder slide. Swipe up for the next one, swipe sideways for the carousel.',
-          category: 'Tech', tags: ['sample', 'accessories'], platform: 'meesho', platformLabel: 'Meesho',
-          priceDisplay: '₹249', originalPriceDisplay: '', discountPct: 0, rating: 4.0
+          id: 'demo-earbuds', handle: 'demo-earbuds', title: 'TWS Wireless Earbuds', emoji: '🎧',
+          description: 'Bluetooth 5.3, 30h playtime with case, touch controls & ENC mic for clear calls.',
+          category: 'Audio', tags: ['earbuds', 'bluetooth'], platform: 'amazon', platformLabel: 'Amazon',
+          aff: 'https://www.amazon.in/s?k=tws+wireless+earbuds',
+          priceDisplay: '₹1,299', originalPriceDisplay: '₹2,999', discountPct: 57, rating: 4.4
+        },
+        {
+          id: 'demo-holder', handle: 'demo-car-holder', title: 'Magnetic Car Phone Holder', emoji: '🚗',
+          description: 'Strong magnet, 360° rotation, fits any phone. Dashboard & air-vent mount.',
+          category: 'Auto', tags: ['car', 'phone'], platform: 'meesho', platformLabel: 'Meesho',
+          aff: 'https://www.meesho.com/search?q=magnetic+car+phone+holder',
+          priceDisplay: '₹199', originalPriceDisplay: '₹599', discountPct: 67, rating: 4.0
+        },
+        {
+          id: 'demo-bottle', handle: 'demo-steel-bottle', title: 'Stainless Steel Bottle 1L', emoji: '🍶',
+          description: 'Double-wall insulated — cold 24h, hot 12h. Leak-proof, gym & office ready.',
+          category: 'Kitchen', tags: ['bottle', 'gym'], platform: 'amazon', platformLabel: 'Amazon',
+          aff: 'https://www.amazon.in/s?k=stainless+steel+water+bottle+1l',
+          priceDisplay: '₹449', originalPriceDisplay: '₹899', discountPct: 50, rating: 4.5
+        },
+        {
+          id: 'demo-fairy', handle: 'demo-fairy-lights', title: 'Warm White Fairy Lights 10m', emoji: '✨',
+          description: '100 LEDs, 8 modes, perfect for festivals, birthdays & room makeovers.',
+          category: 'Home Decor', tags: ['lights', 'festive'], platform: 'meesho', platformLabel: 'Meesho',
+          aff: 'https://www.meesho.com/search?q=fairy+string+lights',
+          priceDisplay: '₹249', originalPriceDisplay: '₹699', discountPct: 64, rating: 4.2
+        },
+        {
+          id: 'demo-band', handle: 'demo-fitness-band', title: 'Smart Fitness Band', emoji: '⌚',
+          description: 'Heart-rate, SpO2, sleep tracking & 14-day battery. Calls & message alerts.',
+          category: 'Fitness', tags: ['fitness', 'smart'], platform: 'flipkart', platformLabel: 'Flipkart',
+          aff: 'https://www.flipkart.com/search?q=smart+fitness+band',
+          priceDisplay: '₹999', originalPriceDisplay: '₹1,999', discountPct: 50, rating: 4.0
+        },
+        {
+          id: 'demo-kadai', handle: 'demo-kadai-set', title: 'Non-stick Kadai with Lid', emoji: '🍳',
+          description: 'Induction-friendly 5-layer coating, 2.5L — everyday cooking without sticking.',
+          category: 'Kitchen', tags: ['kitchen', 'cookware'], platform: 'meesho', platformLabel: 'Meesho',
+          aff: 'https://www.meesho.com/search?q=non+stick+kadai',
+          priceDisplay: '₹649', originalPriceDisplay: '₹1,299', discountPct: 50, rating: 4.3
         }
       ];
 
       return samples.map(function (d, i) {
-        var hue = (i * 97 + 210) % 360;
+        var hue = (i * 67 + 200) % 360;
+        var mediaHtml = '';
+        for (var m = 0; m < 3; m++) {
+          mediaHtml +=
+            '<div class="reel-media reel-media--placeholder" style="background:linear-gradient(' + (160 + m * 40) + 'deg,hsl(' + ((hue + m * 40) % 360) + ',45%,' + (26 - m * 5) + '%),hsl(' + ((hue + 100 + m * 40) % 360) + ',50%,10%))">' +
+              '<span class="rs-emoji" aria-hidden="true">' + d.emoji + '</span>' +
+            '</div>';
+        }
         var article = document.createElement('article');
         article.className = 'reel-slide';
         article.setAttribute('aria-label', d.title);
         article.innerHTML =
-          '<span class="rs-sample-badge">SAMPLE DATA</span>' +
-          '<div class="reel-track">' +
-            '<div class="reel-media reel-media--placeholder" style="background:linear-gradient(160deg,hsl(' + hue + ',45%,26%),hsl(' + ((hue + 60) % 360) + ',50%,12%))"></div>' +
-            '<div class="reel-media reel-media--placeholder" style="background:linear-gradient(200deg,hsl(' + ((hue + 30) % 360) + ',40%,22%),hsl(' + ((hue + 120) % 360) + ',45%,10%))"></div>' +
-          '</div>' +
+          '<span class="rs-sample-badge">DEMO</span>' +
+          '<div class="reel-track">' + mediaHtml + '</div>' +
           '<div class="reel-scrim"></div><div class="reel-scrim reel-scrim--top"></div>' +
           '<div class="reel-info">' +
             '<span class="reel-info__platform">' + esc(d.platformLabel) + '</span>' +
             '<h2 class="reel-info__title">' + esc(d.title) + '</h2>' +
+            '<span class="reel-info__rating">★ ' + d.rating + '</span>' +
             '<p class="reel-info__desc">' + esc(d.description) + '</p>' +
             '<div class="reel-price"><span class="reel-price__current">' + esc(d.priceDisplay) + '</span>' +
               (d.originalPriceDisplay ? '<s class="reel-price__original">' + esc(d.originalPriceDisplay) + '</s><span class="reel-price__badge">-' + d.discountPct + '%</span>' : '') +
             '</div>' +
-            '<span class="reel-cta is-disabled">Add your affiliate link metafield</span>' +
+            '<a class="reel-cta" href="' + esc(d.aff) + '" target="_blank" rel="nofollow sponsored noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>Buy on ' + esc(d.platformLabel) + '</a>' +
           '</div>' +
           '<div class="reel-rail">' +
             '<button class="reel-rail__btn" data-action="like" aria-pressed="false" aria-label="Like"><span class="reel-rail__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.7C7.3 17.6 3.5 14.2 2.4 10.9 1.3 7.4 3.4 4.5 6.4 4.5c1.9 0 3.2 1 4.1 2.3l1.5 2.1 1.5-2.1c.9-1.3 2.2-2.3 4.1-2.3 3 0 5.1 2.9 4 6.4-1.1 3.3-4.9 6.7-9.6 9.8z"/></svg></span><span class="reel-rail__label">Like</span></button>' +
@@ -753,7 +796,7 @@
           '<div class="reel-dots"></div>' +
           '<script type="application/json" class="reel-json">' + JSON.stringify({
             id: d.id, handle: d.handle, title: d.title, category: d.category, tags: d.tags,
-            platform: d.platform, platformLabel: d.platformLabel, affiliateUrl: '',
+            platform: d.platform, platformLabel: d.platformLabel, affiliateUrl: d.aff,
             videoUrl: '', images: [], rating: d.rating, shareUrl: ''
           }) + '<\/script>';
         container.appendChild(article);

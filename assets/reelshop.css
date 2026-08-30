@@ -668,6 +668,16 @@
   background: radial-gradient(120% 120% at 20% 10%, #2a2a33 0%, #101013 60%);
 }
 
+.rs-emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 110px;
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.5));
+}
+
 /* Video play indicator when paused */
 .rs-paused-badge {
   position: absolute;
