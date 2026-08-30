@@ -592,7 +592,10 @@
       onboardDismissed = true;
       onboardEl.classList.add('is-dismissed');
       setTimeout(function () {
-        if (onboardEl) onboardEl.hidden = true;
+        if (onboardEl) {
+          onboardEl.hidden = true;
+          onboardEl.style.display = 'none';
+        }
       }, 400);
       Store.data.onboarded = true;
       Store.save();
@@ -601,9 +604,12 @@
     if (onboardEl) {
       if (Store.data.onboarded) {
         onboardEl.hidden = true;
+        onboardEl.style.display = 'none';
         onboardEl.classList.add('is-dismissed');
       } else {
         onboardEl.hidden = false;
+        onboardEl.removeAttribute('hidden');
+        onboardEl.style.display = 'flex';
         onboardEl.classList.remove('is-dismissed');
         setTimeout(function () {
           ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(function (evt) {
