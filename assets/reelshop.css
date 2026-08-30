@@ -905,6 +905,283 @@
   font-weight: 700;
 }
 
+/* Saved Reels Drawer & Topbar Badge ----------------------------------------- */
+.reel-favbtn {
+  position: relative;
+}
+
+.reel-favbadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--rs-accent, #ff2d55);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reel-favbadge[hidden] {
+  display: none !important;
+}
+
+.reel-favdrawer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.reel-favdrawer.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reel-favdrawer[hidden] {
+  display: none !important;
+}
+
+.reel-favdrawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.reel-favdrawer__panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 82vh;
+  max-height: 720px;
+  background: #121216;
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reel-favdrawer.is-open .reel-favdrawer__panel {
+  transform: translateY(0);
+}
+
+.reel-favdrawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 18, 22, 0.95);
+}
+
+.reel-favdrawer__title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.reel-favdrawer__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.reel-favdrawer__count {
+  font-size: 0.8rem;
+  color: var(--rs-text-dim, rgba(255, 255, 255, 0.6));
+  font-weight: 600;
+}
+
+.reel-favdrawer__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+}
+
+.reel-favdrawer__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.reel-favdrawer__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a20;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.reel-favdrawer__item:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.reel-favdrawer__media-link {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 12;
+  background: #23232b;
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.reel-favdrawer__media-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-favdrawer__play-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.reel-favdrawer__play-pill svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.reel-favdrawer__remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+
+.reel-favdrawer__remove-btn:hover {
+  background: #ff2d55;
+  color: #fff;
+}
+
+.reel-favdrawer__remove-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.reel-favdrawer__info {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.reel-favdrawer__item-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fff;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reel-favdrawer__item-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.reel-favdrawer__item-price {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.reel-favdrawer__item-platform {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.reel-favdrawer__item-platform--amazon { background: #ff9900; color: #111; }
+.reel-favdrawer__item-platform--flipkart { background: #2874f0; color: #fff; }
+.reel-favdrawer__item-platform--meesho { background: #e0358a; color: #fff; }
+
+.reel-favdrawer__empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.reel-favdrawer__empty-icon {
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.reel-favdrawer__empty h3 {
+  color: #fff;
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.reel-favdrawer__empty p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
 /* Accessibility & motion -------------------------------------------------------- */
 .reelshop :focus-visible,
 .reel-favpage :focus-visible {

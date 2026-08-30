@@ -593,8 +593,140 @@
       if (on) bumpAffinity(slide.data, EVENT_WEIGHTS.favorite);
       syncActionButtons(slide);
       Store.save();
+      updateFavBadge();
+      if (favDrawer && favDrawer.classList.contains('is-open')) renderFavDrawer();
       toast(on ? 'Saved to favorites' : 'Removed from favorites');
     }
+
+    /* ---------- saved reels drawer ---------- */
+    var favBadge = $('.reel-favbadge', root);
+    var favDrawer = $('#ReelFavDrawer', root) || $('.reel-favdrawer', root);
+    var openFavBtns = $all('[data-action="open-favorites"]', root);
+    var closeFavBtns = $all('[data-action="close-favorites"]', root);
+
+    function updateFavBadge() {
+      if (!favBadge) return;
+      var count = Object.keys(Store.data.favorites || {}).length;
+      if (count > 0) {
+        favBadge.textContent = count > 99 ? '99+' : count;
+        favBadge.hidden = false;
+        favBadge.removeAttribute('hidden');
+        favBadge.style.display = 'flex';
+      } else {
+        favBadge.hidden = true;
+        favBadge.style.display = 'none';
+      }
+    }
+
+    function openFavDrawer() {
+      if (!favDrawer) return;
+      renderFavDrawer();
+      favDrawer.hidden = false;
+      favDrawer.removeAttribute('hidden');
+      favDrawer.style.display = 'flex';
+      requestAnimationFrame(function () {
+        favDrawer.classList.add('is-open');
+      });
+    }
+
+    function closeFavDrawer() {
+      if (!favDrawer) return;
+      favDrawer.classList.remove('is-open');
+      setTimeout(function () {
+        favDrawer.hidden = true;
+        favDrawer.style.display = 'none';
+      }, 300);
+    }
+
+    openFavBtns.forEach(function (btn) {
+      btn.addEventListener('click', openFavDrawer);
+    });
+    closeFavBtns.forEach(function (btn) {
+      btn.addEventListener('click', closeFavDrawer);
+    });
+
+    function renderFavDrawer() {
+      if (!favDrawer) return;
+      var grid = $('.reel-favdrawer__grid', favDrawer);
+      var empty = $('.reel-favdrawer__empty', favDrawer);
+      var countEl = $('.reel-favdrawer__count', favDrawer);
+      if (!grid) return;
+
+      grid.innerHTML = '';
+      var favMap = Store.data.favorites || {};
+      var favIds = Object.keys(favMap);
+      var favSlides = slides.filter(function (s) {
+        return favIds.indexOf(String(s.data.id)) > -1 || favIds.indexOf(s.data.id) > -1;
+      });
+
+      if (countEl) countEl.textContent = favSlides.length + (favSlides.length === 1 ? ' item' : ' items');
+
+      if (favSlides.length === 0) {
+        if (empty) empty.hidden = false;
+        grid.hidden = true;
+        return;
+      }
+
+      if (empty) empty.hidden = true;
+      grid.hidden = false;
+
+      favSlides.forEach(function (s) {
+        var d = s.data;
+        var sym = d.currencySymbol || '₹';
+        var priceVal = d.price || '';
+        var priceStr = priceVal ? (sym + priceVal) : '';
+        var poster = (d.images && d.images[0]) ? d.images[0] : (s.video ? s.video.getAttribute('poster') : '');
+        var platClass = (d.platform || 'amazon').toLowerCase();
+
+        var card = document.createElement('div');
+        card.className = 'reel-favdrawer__item';
+        card.innerHTML =
+          '<div class="reel-favdrawer__media-link" data-fav-jump="' + esc(d.id) + '">' +
+            (poster ? '<img src="' + esc(poster) + '" alt="' + esc(d.title) + '" loading="lazy">' : '<div style="width:100%;height:100%;background:#23232b;display:flex;align-items:center;justify-content:center;font-size:32px;">🎬</div>') +
+            '<span class="reel-favdrawer__play-pill"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch</span>' +
+            '<button class="reel-favdrawer__remove-btn" type="button" data-fav-remove="' + esc(d.id) + '" aria-label="Remove ' + esc(d.title) + '">' +
+              '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="reel-favdrawer__info">' +
+            '<h3 class="reel-favdrawer__item-title">' + esc(d.title) + '</h3>' +
+            '<div class="reel-favdrawer__item-price-row">' +
+              (priceStr ? '<span class="reel-favdrawer__item-price">' + esc(priceStr) + '</span>' : '') +
+              '<span class="reel-favdrawer__item-platform reel-favdrawer__item-platform--' + platClass + '">' + esc(d.platformLabel || d.platform || 'Amazon') + '</span>' +
+            '</div>' +
+          '</div>';
+
+        // Jump to reel on click
+        var mediaLink = $('.reel-favdrawer__media-link', card);
+        if (mediaLink) {
+          mediaLink.addEventListener('click', function (e) {
+            if (e.target.closest('.reel-favdrawer__remove-btn')) return;
+            closeFavDrawer();
+            moveToFront(s);
+            activate(s);
+          });
+        }
+
+        // Remove button on click
+        var removeBtn = $('.reel-favdrawer__remove-btn', card);
+        if (removeBtn) {
+          removeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            delete Store.data.favorites[d.id];
+            delete Store.data.favorites[String(d.id)];
+            Store.save();
+            syncActionButtons(s);
+            updateFavBadge();
+            renderFavDrawer();
+            toast('Removed from favorites');
+          });
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    updateFavBadge();
 
     /* ---------- share ---------- */
     function shareSlide(slide) {

@@ -39,11 +39,10 @@
       <span class="reel-topbar__title">{{ section.settings.feed_title | default: shop.name | escape }}</span>
 
       <div class="reel-topbar__actions">
-        {%- if section.settings.favorites_page != blank -%}
-          <a class="reel-iconbtn" href="{{ section.settings.favorites_page }}" aria-label="Open favorites">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h12v18l-6-4.2L6 21z"/></svg>
-          </a>
-        {%- endif -%}
+        <button class="reel-iconbtn reel-favbtn" type="button" data-action="open-favorites" aria-label="Open saved reels">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h12v18l-6-4.2L6 21z"/></svg>
+          <span class="reel-favbadge" hidden>0</span>
+        </button>
 
         <button class="reel-iconbtn" type="button" data-action="sound" aria-label="Unmute sound" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -133,6 +132,34 @@
     </div>
 
     <div class="reel-toast" role="status" aria-live="polite"></div>
+
+    <div class="reel-favdrawer" id="ReelFavDrawer" hidden aria-modal="true" role="dialog" aria-label="Saved Reels">
+      <div class="reel-favdrawer__backdrop" data-action="close-favorites"></div>
+      <div class="reel-favdrawer__panel">
+        <header class="reel-favdrawer__header">
+          <div class="reel-favdrawer__title-wrap">
+            <h2 class="reel-favdrawer__title">Saved Reels</h2>
+            <span class="reel-favdrawer__count">0 items</span>
+          </div>
+          <button class="reel-iconbtn reel-favdrawer__close" type="button" data-action="close-favorites" aria-label="Close saved reels">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </header>
+
+        <div class="reel-favdrawer__body">
+          <div class="reel-favdrawer__grid"></div>
+          <div class="reel-favdrawer__empty" hidden>
+            <div class="reel-favdrawer__empty-icon">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <h3>No saved reels yet</h3>
+            <p>Tap the bookmark icon on any reel to save products here for quick access.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <noscript>
       <div class="reel-state">
