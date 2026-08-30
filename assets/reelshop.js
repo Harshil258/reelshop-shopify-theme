@@ -584,6 +584,29 @@
     }
 
     /* ---------- toast & onboarding ---------- */
+    var onboardEl = $('.reel-onboard', root);
+    var onboardDismissed = false;
+
+    function dismissOnboarding() {
+      if (!onboardEl || onboardDismissed || Store.data.onboarded) return;
+      onboardDismissed = true;
+      onboardEl.classList.add('is-dismissed');
+      setTimeout(function () {
+        if (onboardEl) onboardEl.hidden = true;
+      }, 350);
+      Store.data.onboarded = true;
+      Store.save();
+    }
+
+    if (onboardEl && !Store.data.onboarded) {
+      onboardEl.hidden = false;
+      ['pointerdown', 'touchstart', 'click', 'scroll'].forEach(function (evt) {
+        window.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
+        if (feed) feed.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
+      });
+      setTimeout(dismissOnboarding, 4500);
+    }
+
     function toast(msg) {
       if (!toastEl) return;
       toastEl.textContent = msg;
