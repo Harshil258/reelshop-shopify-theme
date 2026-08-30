@@ -711,7 +711,10 @@
 
 /* Empty / end-of-feed states -------------------------------------------------- */
 .reel-state {
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: var(--rs-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -720,7 +723,6 @@
   padding: 32px;
   text-align: center;
   color: var(--rs-text-dim);
-  scroll-snap-align: start;
 }
 
 .reel-state strong {
