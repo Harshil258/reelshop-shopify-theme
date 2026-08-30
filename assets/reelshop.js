@@ -588,7 +588,7 @@
     var onboardDismissed = false;
 
     function dismissOnboarding() {
-      if (!onboardEl || onboardDismissed || Store.data.onboarded) return;
+      if (!onboardEl || onboardDismissed) return;
       onboardDismissed = true;
       onboardEl.classList.add('is-dismissed');
       setTimeout(function () {
@@ -604,13 +604,21 @@
         onboardEl.classList.add('is-dismissed');
       } else {
         onboardEl.hidden = false;
+        onboardEl.classList.remove('is-dismissed');
         setTimeout(function () {
-          ['pointerdown', 'touchstart', 'click', 'scroll'].forEach(function (evt) {
+          ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(function (evt) {
             window.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
-            if (feed) feed.addEventListener(evt, dismissOnboarding, { passive: true, once: true });
           });
-        }, 400);
-        setTimeout(dismissOnboarding, 5000);
+          if (feed) {
+            feed.addEventListener('scroll', function onFirstScroll() {
+              if (feed.scrollTop > 20) {
+                dismissOnboarding();
+                feed.removeEventListener('scroll', onFirstScroll);
+              }
+            }, { passive: true });
+          }
+        }, 1200);
+        setTimeout(dismissOnboarding, 6000);
       }
     }
 
