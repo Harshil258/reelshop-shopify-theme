@@ -114,4 +114,21 @@
       </a>
     </div>
   </div>
+
+  <script type="application/json" class="reel-json">
+    {
+      "id": "sample-{{ index }}",
+      "handle": "sample-{{ index }}",
+      "title": {{ title | json }},
+      "category": {{ category | json }},
+      "tags": [{{ category | downcase | json }}, "demo"],
+      "platform": {{ platform | json }},
+      "platformLabel": {{ platform | capitalize | json }},
+      "affiliateUrl": {{ affiliate_url | json }},
+      "videoUrl": {{ video_url | json }},
+      "images": [{% if image_url != blank %}{{ image_url | json }}{% endif %}],
+      "rating": {% if rating != blank %}{{ rating | plus: 0 | json }}{% else %}null{% endif %},
+      "shareUrl": "{{ shop.url }}/?reel=sample-{{ index }}"
+    }
+  </script>
 </article>

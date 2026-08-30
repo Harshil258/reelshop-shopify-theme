@@ -795,12 +795,19 @@
     }
 
     /* ---------- boot ---------- */
-    reorderFeed();
+    var params = new URLSearchParams(location.search);
+    var targetHandle = params.get('product') || params.get('reel') || params.get('id');
+    var isProductPage = window.location.pathname.indexOf('/products/') > -1;
 
-    // Deep link: ?product=<handle> opens the feed on that product.
-    var targetHandle = new URLSearchParams(location.search).get('product');
+    // Preserve the shared product at the top while letting user scroll other reels
+    if (!isProductPage && !targetHandle) {
+      reorderFeed();
+    }
+
     if (targetHandle) {
-      var target = slides.filter(function (s) { return s.data.handle === targetHandle; })[0];
+      var target = slides.filter(function (s) {
+        return s.data.handle === targetHandle || String(s.data.id) === targetHandle;
+      })[0];
       if (target) moveToFront(target);
     }
 

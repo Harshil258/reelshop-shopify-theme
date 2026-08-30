@@ -137,7 +137,7 @@
 {%- assign algo_tags = mf.tags_extra.value | default: product.tags -%}
 {%- assign rating = mf.rating.value | default: mf.rating -%}
 {%- assign desc_text = product.description | strip_html | truncate: 500 -%}
-{%- assign share_url = shop.url | append: '/?product=' | append: product.handle -%}
+{%- assign share_url = shop.url | append: product.url -%}
 {%- assign cta_text = section_settings.cta_text | default: 'Buy on {{platform}}' | replace: '{{platform}}', platform_label -%}
 
 <article class="reel-slide" data-handle="{{ product.handle | escape }}" data-id="{{ product.id }}" aria-label="{{ product.title | escape }}">
