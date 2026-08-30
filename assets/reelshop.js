@@ -546,6 +546,12 @@
         // localStorage disabled: keep the default Liquid order.
         return;
       }
+      var hasHistory = Store.data && (
+        (Store.data.views && Object.keys(Store.data.views).length > 0) ||
+        (Store.data.likes && Object.keys(Store.data.likes).length > 0) ||
+        (Store.data.affCats && Object.keys(Store.data.affCats).length > 0)
+      );
+      if (!hasHistory && !CFG.forceReorder) return;
 
       var pool = slides.slice();
       pool.forEach(function (s) { s._score = scoreSlide(s); });
