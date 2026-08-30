@@ -165,10 +165,18 @@
       {%- if clean_img != blank -%}
         <div class="reel-media">
           <img
-            data-src="{{ clean_img | escape }}"
+            {% if is_first and forloop.first %}
+              src="{{ clean_img | escape }}"
+              fetchpriority="high"
+              loading="eager"
+            {% else %}
+              data-src="{{ clean_img | escape }}"
+              loading="lazy"
+            {% endif %}
             alt="{{ product.title | escape }} — photo {{ forloop.index }}"
-            loading="lazy"
             decoding="async"
+            width="800"
+            height="1200"
           >
         </div>
       {%- endif -%}

@@ -37,8 +37,10 @@
         <img
           src="{{ image_url | escape }}"
           alt="{{ title | escape }}"
-          loading="lazy"
+          {% if is_first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
           decoding="async"
+          width="800"
+          height="1200"
         >
       </div>
     {%- endif -%}
