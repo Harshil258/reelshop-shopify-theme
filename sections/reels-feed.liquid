@@ -77,7 +77,7 @@
         {%- endfor -%}
       {%- endpaginate -%}
 
-      {%- if feed_collection.products.size < 6 -%}
+      {%- if feed_collection.all_products_count < 6 or feed_collection.products_count < 6 -%}
         {%- render 'reel-slide-sample',
           index: 1,
           title: 'Portable Mini Juicer Blender 380ml',
