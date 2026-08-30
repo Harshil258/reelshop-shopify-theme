@@ -16,6 +16,17 @@
   <div class="reel-track">
     {%- if video_url != blank -%}
       <div class="reel-media">
+        {%- if image_url != blank -%}
+          <img
+            class="reel-poster"
+            src="{{ image_url | escape }}"
+            alt="{{ title | escape }}"
+            {% if is_first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}
+            decoding="async"
+            width="800"
+            height="1200"
+          >
+        {%- endif -%}
         <video
           muted="muted"
           playsinline
