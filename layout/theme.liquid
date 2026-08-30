@@ -76,6 +76,81 @@
         position: relative;
       }
 
+      .reelshop,
+      .reel-frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        height: -webkit-fill-available;
+        max-width: 100%;
+        background: #0b0b0d;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .reel-feed {
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        height: -webkit-fill-available;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        scrollbar-width: none;
+        outline: none;
+      }
+
+      .reel-slide {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        height: -webkit-fill-available;
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        overflow: hidden;
+        background: #0b0b0d;
+      }
+
+      .reel-track {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        height: -webkit-fill-available;
+        overflow: hidden;
+      }
+
+      .reel-media {
+        position: relative;
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        height: -webkit-fill-available;
+        background: #0d0d10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .reel-poster,
+      .reel-media img,
+      .reel-media video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background-color: #0d0d10;
+      }
+
       /* Hide any residual Dawn header/footer elements */
       .shopify-section-group-header-group,
       .shopify-section-group-footer-group,
@@ -87,7 +162,8 @@
       }
     {% endstyle %}
 
-    {{ 'reelshop.css' | asset_url | stylesheet_tag }}
+    <link rel="preload" href="{{ 'reelshop.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>{{ 'reelshop.css' | asset_url | stylesheet_tag }}</noscript>
 
     <script>
       document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
