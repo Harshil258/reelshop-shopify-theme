@@ -67,16 +67,20 @@
     <div class="reel-feed" tabindex="0" aria-label="Product reels feed — swipe or use arrow keys to browse">
       {%- paginate feed_collection.products by limit -%}
         {%- if template.name == 'product' and product != blank -%}
-          {%- render 'reel-slide', product: product, section_settings: section.settings -%}
+          {%- render 'reel-slide', product: product, section_settings: section.settings, is_first: true -%}
         {%- endif -%}
         {%- for item in feed_collection.products -%}
           {%- unless template.name == 'product' and item.id == product.id -%}
-            {%- render 'reel-slide', product: item, section_settings: section.settings -%}
+            {%- assign slide_first = false -%}
+            {%- if forloop.first and template.name != 'product' -%}{%- assign slide_first = true -%}{%- endif -%}
+            {%- render 'reel-slide', product: item, section_settings: section.settings, is_first: slide_first -%}
           {%- endunless -%}
         {%- endfor -%}
       {%- endpaginate -%}
 
       {%- if feed_collection.all_products_count < 6 or feed_collection.products_count < 6 -%}
+        {%- assign sample_first = false -%}
+        {%- if feed_collection.all_products_count == 0 -%}{%- assign sample_first = true -%}{%- endif -%}
         {%- render 'reel-slide-sample',
           index: 1,
           title: 'Portable Mini Juicer Blender 380ml',
@@ -89,7 +93,8 @@
           affiliate_url: 'https://www.amazon.in/s?k=portable+mini+juicer+blender',
           video_url: 'https://vjs.zencdn.net/v/oceans.mp4',
           image_url: 'https://images.unsplash.com/photo-1570857502809-08184874388e?w=800&auto=format&fit=crop&q=80',
-          section_settings: section.settings
+          section_settings: section.settings,
+          is_first: sample_first
         -%}
         {%- render 'reel-slide-sample',
           index: 2,
@@ -103,7 +108,8 @@
           affiliate_url: 'https://www.meesho.com/search?q=rgb+led+strip+lights',
           video_url: 'https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/master/person-bicycle-car-detection.mp4',
           image_url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80',
-          section_settings: section.settings
+          section_settings: section.settings,
+          is_first: false
         -%}
         {%- render 'reel-slide-sample',
           index: 3,
@@ -117,7 +123,8 @@
           affiliate_url: 'https://www.flipkart.com/search?q=tws+wireless+earbuds',
           video_url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
           image_url: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
-          section_settings: section.settings
+          section_settings: section.settings,
+          is_first: false
         -%}
       {%- endif -%}
 
