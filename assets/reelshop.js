@@ -277,30 +277,42 @@
       slide.dots.forEach(function (d, i) { d.classList.toggle('is-active', i === idx); });
     }
 
-    /* ---------- lazy loading ---------- */
-    function ensureMediaLoaded(slide) {
-      if (!slide || slide.loaded) return;
-      slide.loaded = true;
-      $all('[data-src]', slide.el).forEach(function (node) {
-        var src = node.getAttribute('data-src');
-        if (!src) return;
-        node.src = src;
-        node.removeAttribute('data-src');
-        if (node.tagName === 'VIDEO') {
-          node.defaultMuted = true;
-          node.muted = !Store.data.sound;
-          node.setAttribute('muted', '');
-          node.setAttribute('playsinline', '');
-          node.setAttribute('webkit-playsinline', '');
-          try { node.load(); } catch (e) {}
+    /* ---------- lazy loading & prebuffering ---------- */
+    function ensureMediaLoaded(slide, shouldPreloadVideo) {
+      if (!slide) return;
+      if (!slide.loaded) {
+        slide.loaded = true;
+        $all('[data-src]', slide.el).forEach(function (node) {
+          var src = node.getAttribute('data-src');
+          if (!src) return;
+          node.src = src;
+          node.removeAttribute('data-src');
+          if (node.tagName === 'VIDEO') {
+            node.defaultMuted = true;
+            node.muted = !Store.data.sound;
+            node.setAttribute('muted', '');
+            node.setAttribute('playsinline', '');
+            node.setAttribute('webkit-playsinline', '');
+            node.preload = 'auto';
+            try { node.load(); } catch (e) {}
+          }
+        });
+      }
+
+      var v = slide.video || $('video', slide.el);
+      if (v) {
+        slide.video = v;
+        if (shouldPreloadVideo && v.readyState < 2) {
+          v.preload = 'auto';
+          try { v.load(); } catch (e) {}
         }
-      });
+      }
     }
 
     function loadNeighbors(index) {
-      for (var i = index - 1; i <= index + 2; i++) {
-        if (slides[i]) ensureMediaLoaded(slides[i]);
-      }
+      if (slides[index + 1]) ensureMediaLoaded(slides[index + 1], true);
+      if (slides[index - 1]) ensureMediaLoaded(slides[index - 1], true);
+      if (slides[index + 2]) ensureMediaLoaded(slides[index + 2], false);
     }
 
     /* ---------- active slide management ---------- */
@@ -321,7 +333,7 @@
       pushRecent(slide.data.id);
       bumpAffinity(slide.data, EVENT_WEIGHTS.view);
 
-      if (slide.video) {
+      if (slide.video || $('video', slide.el)) {
         if (!REDUCED_MOTION) playVideo(slide);
         else pauseVideo(slide);
       }
@@ -1039,16 +1051,22 @@
       if (target) moveToFront(target);
     }
 
-    // IntersectionObserver drives active-slide detection + lazy preload.
+    // IntersectionObserver drives active-slide detection + instant fast response
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
+        var bestEntry = null;
+        var maxRatio = 0;
         entries.forEach(function (entry) {
-          if (entry.intersectionRatio >= 0.5) {
-            var slide = slides.filter(function (s) { return s.el === entry.target; })[0];
-            if (slide) activate(slide);
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            bestEntry = entry;
           }
         });
-      }, { root: feed, threshold: [0.5] });
+        if (bestEntry && maxRatio >= 0.35) {
+          var slide = slides.filter(function (s) { return s.el === bestEntry.target; })[0];
+          if (slide && slide !== currentSlide) activate(slide);
+        }
+      }, { root: feed, threshold: [0.35, 0.65, 0.9] });
       slides.forEach(function (s) { io.observe(s.el); });
 
       var preload = new IntersectionObserver(function (entries) {
@@ -1058,7 +1076,7 @@
           var idx = slides.indexOf(slide);
           if (idx > -1) loadNeighbors(idx);
         });
-      }, { root: feed, rootMargin: '150% 0px 150% 0px', threshold: 0 });
+      }, { root: feed, rootMargin: '200% 0px 200% 0px', threshold: 0 });
       slides.forEach(function (s) { preload.observe(s.el); });
     }
 
