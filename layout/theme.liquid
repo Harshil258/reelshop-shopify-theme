@@ -45,6 +45,7 @@
         width: 100%;
         height: 100%;
         height: 100dvh;
+        height: -webkit-fill-available;
         overflow: hidden;
         background-color: #000000;
         color: #ffffff;
@@ -53,12 +54,15 @@
         -moz-osx-font-smoothing: grayscale;
         overscroll-behavior: none;
         touch-action: pan-y;
+        position: fixed;
+        inset: 0;
       }
 
       #MainContent {
         width: 100%;
         height: 100%;
         height: 100dvh;
+        height: -webkit-fill-available;
         overflow: hidden;
         position: relative;
       }

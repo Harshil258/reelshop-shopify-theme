@@ -60,11 +60,20 @@
 }
 
 /* Desktop "phone frame" ---------------------------------------------------- */
+.reelshop {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  overflow: hidden;
+}
+
 .reel-frame {
   position: relative;
   width: 100%;
   height: 100%;
   height: 100dvh;
+  height: -webkit-fill-available;
   max-width: 100%;
   background: var(--rs-bg);
   overflow: hidden;
@@ -84,7 +93,11 @@
 
 /* Vertical feed (swipe up = next product) ---------------------------------- */
 .reel-feed {
+  width: 100%;
   height: 100%;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  flex: 1 1 auto;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
@@ -101,7 +114,11 @@
 
 .reel-slide {
   position: relative;
+  width: 100%;
   height: 100%;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  flex: 0 0 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   overflow: hidden;
@@ -109,7 +126,6 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  contain: layout style paint;
 }
 
 .reel-slide.rs-hidden {
@@ -119,7 +135,10 @@
 /* Horizontal media carousel (swipe left = more media for this product) ----- */
 .reel-track {
   display: flex;
+  width: 100%;
   height: 100%;
+  height: 100dvh;
+  height: -webkit-fill-available;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -139,6 +158,8 @@
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
+  height: 100dvh;
+  height: -webkit-fill-available;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   background: #0d0d10;

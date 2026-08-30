@@ -4,117 +4,74 @@
 
 {%- assign sym = section_settings.currency_symbol | default: '₹' -%}
 {%- assign disc = original_price | minus: price | times: 100 | divided_by: original_price -%}
+{%- assign current_display = sym | append: price -%}
+{%- assign orig_display = sym | append: original_price -%}
 
 <article
   class="reel-slide"
-  data-product-id="sample-{{ index }}"
-  data-product-handle="sample-{{ index }}"
-  data-product-title="{{ title | escape }}"
-  data-category="{{ category | escape }}"
-  data-tags="{{ category | downcase }},demo,featured"
-  data-rating="{{ rating | default: '4.4' }}"
-  data-platform="{{ platform | downcase }}"
-  data-price="{{ price }}"
-  tabindex="-1"
+  data-handle="sample-{{ index }}"
+  data-id="sample-{{ index }}"
   aria-label="{{ title | escape }}"
 >
-  <div class="reel-viewport">
-    <div class="reel-media-track">
-      {%- if video_url != blank -%}
-        <div class="reel-media-item reel-media-item--video is-active" data-media-type="video">
-          <video
-            class="reel-video"
-            src="{{ video_url }}"
-            {% if image_url != blank %}poster="{{ image_url }}"{% endif %}
-            playsinline
-            webkit-playsinline
-            muted="muted"
-            loop
-            preload="auto"
-            autoplay
-            aria-label="{{ title | escape }}"
-          ></video>
-          <div class="reel-play-indicator" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </div>
-        </div>
-      {%- endif -%}
-
-      {%- if image_url != blank -%}
-        <div class="reel-media-item reel-media-item--image {% if video_url == blank %}is-active{% endif %}" data-media-type="image">
-          <img
-            class="reel-image"
-            src="{{ image_url }}"
-            alt="{{ title | escape }}"
-            loading="lazy"
-            width="800"
-            height="1200"
-          >
-        </div>
-      {%- endif -%}
-    </div>
-
-    <div class="reel-pagination" aria-hidden="true">
-      {%- if video_url != blank -%}<span class="reel-pagination__dot is-active"></span>{%- endif -%}
-      {%- if image_url != blank -%}<span class="reel-pagination__dot {% if video_url == blank %}is-active{% endif %}"></span>{%- endif -%}
-    </div>
-
-    <div class="reel-heart-pop" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="72" height="72" fill="#ff2d55">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-      </svg>
-    </div>
-
-    {% render 'action-rail',
-      product_id: index,
-      product_title: title,
-      product_url: affiliate_url,
-      category: category,
-      rating: rating,
-      section_settings: section_settings
-    %}
-
-    <div class="reel-info">
-      <div class="reel-info__platform-wrap">
-        <span class="reel-info__platform reel-info__platform--{{ platform | downcase }}">
-          {{ platform | capitalize }}
+  <div class="reel-track">
+    {%- if video_url != blank -%}
+      <div class="reel-media">
+        <video
+          muted="muted"
+          playsinline
+          webkit-playsinline
+          loop
+          preload="auto"
+          src="{{ video_url | escape }}"
+          {% if image_url != blank %}poster="{{ image_url | escape }}"{% endif %}
+          aria-label="{{ title | escape }} video"
+        ></video>
+        <span class="rs-paused-badge" aria-hidden="true">
+          <span><svg viewBox="0 0 24 24" focusable="false"><path d="M8 5v14l11-7z"/></svg></span>
         </span>
-        <span class="reel-info__deal-badge">
-          -{{ disc }}% OFF
-        </span>
-        {%- if section_settings.show_ratings -%}
-          <span class="reel-info__rating" aria-label="Rated {{ rating }} out of 5">
-            ★ {{ rating | default: '4.4' }}
-          </span>
-        {%- endif -%}
       </div>
+    {%- endif -%}
 
-      <div class="reel-info__price-row">
-        <span class="reel-info__price">{{ sym }}{{ price }}</span>
-        <span class="reel-info__original-price">{{ sym }}{{ original_price }}</span>
+    {%- if image_url != blank -%}
+      <div class="reel-media">
+        <img
+          src="{{ image_url | escape }}"
+          alt="{{ title | escape }}"
+          loading="lazy"
+          decoding="async"
+        >
       </div>
-
-      <h2 class="reel-info__title">{{ title | escape }}</h2>
-
-      <p class="reel-info__desc">
-        <span class="reel-info__desc-text">{{ desc | escape }}</span>
-      </p>
-
-      <a
-        href="{{ affiliate_url }}"
-        target="_blank"
-        rel="nofollow sponsored noopener"
-        class="reel-cta reel-cta--{{ platform | downcase }}"
-        data-platform="{{ platform | downcase }}"
-        data-product-id="sample-{{ index }}"
-      >
-        <span class="reel-cta__label">Buy on {{ platform | capitalize }}</span>
-        <span class="reel-cta__arrow" aria-hidden="true">↗</span>
-      </a>
-    </div>
+    {%- endif -%}
   </div>
+
+  <div class="reel-scrim" aria-hidden="true"></div>
+  <div class="reel-scrim reel-scrim--top" aria-hidden="true"></div>
+
+  <div class="reel-info">
+    <div class="reel-info__platform-wrap">
+      <span class="reel-info__platform">{{ platform | capitalize }}</span>
+      {%- if section_settings.show_ratings and rating != blank -%}
+        <span class="reel-info__rating" aria-label="Rated {{ rating }} out of 5">★ {{ rating | plus: 0 }}</span>
+      {%- endif -%}
+    </div>
+
+    <h2 class="reel-info__title">{{ title | escape }}</h2>
+
+    {%- if desc != blank -%}
+      <p class="reel-info__desc">{{ desc | escape }}</p>
+    {%- endif -%}
+
+    {%- render 'price-block', price_display: current_display, original_display: orig_display, discount_pct: disc -%}
+
+    <a class="reel-cta" href="{{ affiliate_url | escape }}" target="_blank" rel="nofollow sponsored noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      Buy on {{ platform | capitalize }}
+    </a>
+  </div>
+
+  {%- render 'action-rail', category: category -%}
+
+  <div class="reel-dots" aria-hidden="true"></div>
 
   <script type="application/json" class="reel-json">
     {
