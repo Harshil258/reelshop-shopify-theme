@@ -162,8 +162,7 @@
       }
     {% endstyle %}
 
-    <link rel="preload" href="{{ 'reelshop.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>{{ 'reelshop.css' | asset_url | stylesheet_tag }}</noscript>
+    {{ 'reelshop.css' | asset_url | stylesheet_tag }}
 
     <script>
       document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
