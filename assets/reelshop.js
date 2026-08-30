@@ -350,42 +350,57 @@
     }
 
     function playVideo(slide) {
-      var v = slide.video;
+      if (!slide) return;
+      ensureMediaLoaded(slide);
+      var v = slide.video || $('video', slide.el);
       if (!v) return;
+      slide.video = v;
+
       v.defaultMuted = true;
       v.muted = !Store.data.sound;
-      var cell = v.closest('.reel-media');
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+
+      var cell = v.closest('.reel-media, .reel-media-item');
       if (cell) cell.classList.remove('is-paused');
+
       var p = v.play();
-      if (p && p.catch) {
-        p.catch(function () {
-          // If unmuted autoplay fails, try muted playback
+      if (p !== undefined && p.catch) {
+        p.catch(function (err) {
           if (!v.muted) {
             v.muted = true;
-            v.play().catch(function () {});
+            v.play().then(function () {
+              if (cell) cell.classList.remove('is-paused');
+            }).catch(function () {
+              if (cell) cell.classList.add('is-paused');
+            });
           }
         });
       }
     }
 
     function pauseVideo(slide) {
-      var v = slide.video;
+      if (!slide) return;
+      var v = slide.video || $('video', slide.el);
       if (!v) return;
       v.pause();
-      var cell = v.closest('.reel-media');
+      var cell = v.closest('.reel-media, .reel-media-item');
       if (cell && !v.ended) cell.classList.add('is-paused');
     }
 
     /* ---------- gestures ---------- */
     function onSingleTap(slide) {
-      if (slide !== currentSlide || !slide.video) return;
-      var cell = slide.video.closest('.reel-media');
-      if (slide.video.paused) {
-        slide.video.play().then(function () {
+      if (slide !== currentSlide) return;
+      var v = slide.video || $('video', slide.el);
+      if (!v) return;
+      slide.video = v;
+      var cell = v.closest('.reel-media, .reel-media-item');
+      if (v.paused) {
+        v.play().then(function () {
           if (cell) cell.classList.remove('is-paused');
         }).catch(function () {});
       } else {
-        slide.video.pause();
+        v.pause();
         if (cell) cell.classList.add('is-paused');
       }
     }

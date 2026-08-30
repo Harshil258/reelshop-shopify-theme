@@ -139,7 +139,10 @@
 }
 
 .reel-media img,
-.reel-media video {
+.reel-media video,
+.reel-media-item img,
+.reel-media-item video,
+.reel-video {
   position: absolute;
   inset: 0;
   width: 100%;
