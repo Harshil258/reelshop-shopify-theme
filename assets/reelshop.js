@@ -319,8 +319,6 @@
         if (!REDUCED_MOTION) playVideo(slide);
         else pauseVideo(slide);
       }
-
-      dismissOnboardingSoon();
     }
 
     function deactivateCurrent() {
@@ -592,25 +590,6 @@
       toastEl.classList.add('is-visible');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(function () { toastEl.classList.remove('is-visible'); }, 1800);
-    }
-
-    var onboardDismissed = false;
-    function dismissOnboardingSoon() {
-      if (!onboardEl || onboardDismissed || Store.data.onboarded) return;
-      onboardDismissed = true;
-      setTimeout(function () {
-        onboardEl.hidden = true;
-        Store.data.onboarded = true;
-        Store.save();
-      }, 4500);
-    }
-    if (onboardEl) {
-      onboardEl.hidden = !!Store.data.onboarded;
-      onboardEl.addEventListener('click', function () {
-        onboardEl.hidden = true;
-        Store.data.onboarded = true;
-        Store.save();
-      });
     }
 
     /* ---------- sound ---------- */

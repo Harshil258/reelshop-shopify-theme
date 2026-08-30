@@ -604,29 +604,8 @@
   100% { transform: scale(1.15) translateY(-24px); opacity: 0; }
 }
 
-/* Onboarding hint ----------------------------------------------------------- */
 .reel-onboard {
-  position: absolute;
-  left: 50%;
-  bottom: 110px;
-  transform: translateX(-50%);
-  z-index: 8;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: rgba(10, 10, 12, 0.88);
-  backdrop-filter: blur(8px);
-  font-size: 0.82rem;
-  font-weight: 600;
-  white-space: nowrap;
-  animation: rs-float 2.4s ease-in-out infinite;
-}
-
-@keyframes rs-float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(-6px); }
+  display: none !important;
 }
 
 /* Toast --------------------------------------------------------------------- */
