@@ -293,7 +293,7 @@
             node.setAttribute('muted', '');
             node.setAttribute('playsinline', '');
             node.setAttribute('webkit-playsinline', '');
-            node.preload = 'auto';
+            node.preload = shouldPreloadVideo ? 'auto' : 'metadata';
             try { node.load(); } catch (e) {}
           }
         });
@@ -302,7 +302,12 @@
       var v = slide.video || $('video', slide.el);
       if (v) {
         slide.video = v;
-        if (shouldPreloadVideo && v.readyState < 2) {
+        if (!v.src && v.getAttribute('data-src')) {
+          v.src = v.getAttribute('data-src');
+          v.removeAttribute('data-src');
+          v.preload = shouldPreloadVideo ? 'auto' : 'metadata';
+          try { v.load(); } catch (e) {}
+        } else if (shouldPreloadVideo && v.readyState < 2) {
           v.preload = 'auto';
           try { v.load(); } catch (e) {}
         }

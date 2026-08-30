@@ -149,8 +149,8 @@
           playsinline
           webkit-playsinline
           loop
-          preload="{% if is_first %}auto{% else %}metadata{% endif %}"
-          src="{{ video_url | escape }}"
+          preload="none"
+          data-src="{{ video_url | escape }}"
           {% if poster_url != blank %}poster="{{ poster_url | escape }}"{% endif %}
           aria-label="{{ product.title | escape }} video"
         ></video>
