@@ -6,9 +6,10 @@
 {% endcomment %}
 
 {%- assign mf = product.metafields.reelshop -%}
+{%- assign mf_c = product.metafields.custom -%}
 
 {%- comment -%} Platform resolution {%- endcomment -%}
-{%- assign platform_raw = mf.platform.value | default: mf.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip -%}
+{%- assign platform_raw = mf.platform.value | default: mf.platform | default: mf_c.platform.value | default: mf_c.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip -%}
 {%- assign platform_label = 'Amazon' -%}
 {%- if platform_raw contains 'amazon' -%}
   {%- assign platform_label = 'Amazon' -%}
@@ -25,7 +26,7 @@
 {%- endif -%}
 
 {%- comment -%} Affiliate URL resolution {%- endcomment -%}
-{%- assign affiliate_url = mf.affiliate_url.value | default: mf.affiliate_url -%}
+{%- assign affiliate_url = mf.affiliate_url.value | default: mf.affiliate_url | default: mf_c.affiliate_url.value | default: mf_c.affiliate_url -%}
 {%- if affiliate_url == blank and product.description contains 'http' -%}
   {%- comment %} Try parsing affiliate url from description if present {% endcomment -%}
 {%- endif -%}
@@ -34,22 +35,15 @@
 {%- endif -%}
 
 {%- comment -%} Price & Discount resolution {%- endcomment -%}
-{%- assign symbol = mf.currency_symbol.value | default: mf.currency_symbol | default: section_settings.currency_symbol | default: '₹' -%}
-{%- assign mf_price = mf.price.value | default: mf.price -%}
-{%- assign mf_original = mf.original_price.value | default: mf.original_price -%}
+{%- assign symbol = mf.currency_symbol.value | default: mf.currency_symbol | default: mf_c.currency_symbol.value | default: mf_c.currency_symbol | default: section_settings.currency_symbol | default: '₹' -%}
+{%- assign mf_price = mf.price.value | default: mf.price | default: mf_c.price.value | default: mf_c.price -%}
+{%- assign mf_original = mf.original_price.value | default: mf.original_price | default: mf_c.original_price.value | default: mf_c.original_price -%}
 {%- assign current_display = '' -%}
 {%- assign original_display = '' -%}
 {%- assign discount_pct = 0 -%}
 
 {%- if mf_price != blank -%}
   {%- assign price_num = mf_price | times: 1.0 -%}
-  {%- assign price_str = price_num | append: '' -%}
-  {%- assign price_parts = price_str | split: '.' -%}
-  {%- assign price_clean = price_parts[0] -%}
-  {%- if price_parts[1] != blank and price_parts[1] != '0' -%}
-    {%- assign price_clean = price_clean | append: '.' | append: price_parts[1] -%}
-  {%- endif -%}
-  {%- assign current_display = symbol | append: price_clean -%}
   {%- if mf_original != blank -%}
     {%- assign orig_num = mf_original | times: 1.0 -%}
     {%- assign orig_str = orig_num | append: '' -%}
@@ -72,7 +66,7 @@
 {%- endif -%}
 
 {%- comment -%} Video resolution (Shopify File/Video, Metafield, or Native Product Media) {%- endcomment -%}
-{%- assign video_meta = mf.video_url.value | default: mf.video_url -%}
+{%- assign video_meta = mf.video_url.value | default: mf.video_url | default: mf_c.video_url.value | default: mf_c.video_url -%}
 {%- assign video_url = '' -%}
 {%- assign poster_url = '' -%}
 
