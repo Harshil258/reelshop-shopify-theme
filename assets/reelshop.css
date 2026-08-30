@@ -38,6 +38,11 @@
   box-sizing: border-box;
 }
 
+/* The hidden attribute must win over display rules (empty state, onboarding). */
+.reelshop [hidden] {
+  display: none !important;
+}
+
 .reelshop button {
   font: inherit;
   color: inherit;

@@ -20,9 +20,11 @@
    * TUNABLE ALGORITHM CONSTANTS — adjust these to change recommendations
    * ==================================================================== */
   var ALGO = {
-    AFFINITY: 1.0,             // weight of category/tag affinity
+    AFFINITY: 1.0,             // weight of long-term category/tag affinity
+    SESSION: 1.2,              // weight of this-session affinity (stronger signal)
     ENGAGEMENT: 0.5,           // weight of past engagement with this product
     FRESHNESS: 0.9,            // weight of "never/long seen" freshness
+    DIVERSITY_PENALTY: 1.2,    // penalty per same-category item in the last 2 picks
     RANDOM_NOISE: 0.5,         // always-on randomness so order varies per session
     REPEAT_PENALTY: 8.0,       // heavy penalty for very recently viewed items
     REPEAT_WINDOW_MINUTES: 15, // "recently viewed" window for the penalty
@@ -38,11 +40,15 @@
     favorite: 2.0,
     share: 1.5,
     cta: 2.5,          // clicked the affiliate "Buy" button
-    dwellPer10s: 0.5   // per 10s on slide, capped (x3)
+    dwellPer10s: 0.5,  // per 10s on slide, capped (x3)
+    skip: -0.4         // swiped away in < 2s: mild negative signal
   };
 
   var STORAGE_KEY = 'reelshop.v1';
   var DWELL_SAVE_MIN_SECONDS = 1; // ignore sub-second dwell noise
+
+  // This browser session's affinity (not persisted; strongest short-term signal).
+  var SESSION = { cats: {}, tags: {} };
 
   /* ----------------------------------------------------------------------
    * localStorage wrapper — everything degrades gracefully if unavailable
@@ -335,7 +341,11 @@
       if (secs < DWELL_SAVE_MIN_SECONDS) return;
       var stat = prodStat(slide.data.id);
       stat.dwell = (stat.dwell || 0) + secs;
-      bumpAffinity(slide.data, Math.min(3, secs / 10) * EVENT_WEIGHTS.dwellPer10s);
+      if (secs < 2) {
+        bumpAffinity(slide.data, EVENT_WEIGHTS.skip);
+      } else {
+        bumpAffinity(slide.data, Math.min(3, secs / 10) * EVENT_WEIGHTS.dwellPer10s);
+      }
       Store.save();
     }
 
@@ -438,9 +448,11 @@
       if (!data || !amount) return;
       if (data.category) {
         Store.data.categories[data.category] = (Store.data.categories[data.category] || 0) + amount;
+        SESSION.cats[data.category] = (SESSION.cats[data.category] || 0) + amount;
       }
       (data.tags || []).forEach(function (t) {
         Store.data.tags[t] = (Store.data.tags[t] || 0) + amount * 0.6;
+        SESSION.tags[t] = (SESSION.tags[t] || 0) + amount * 0.6;
       });
     }
 
@@ -452,13 +464,21 @@
 
       // Category + tag affinity (log-scaled so hot categories saturate).
       var catAff = (d.category && st.categories[d.category]) || 0;
+      var sesCat = (d.category && SESSION.cats[d.category]) || 0;
       var tagAff = 0;
+      var sesTag = 0;
       if (d.tags && d.tags.length) {
         var sum = 0;
-        d.tags.forEach(function (t) { sum += st.tags[t] || 0; });
+        var ssum = 0;
+        d.tags.forEach(function (t) { sum += st.tags[t] || 0; ssum += SESSION.tags[t] || 0; });
         tagAff = sum / d.tags.length;
+        sesTag = ssum / d.tags.length;
       }
-      var affinity = Math.log(1 + catAff) / Math.LN2 + 0.6 * (Math.log(1 + tagAff) / Math.LN2);
+      var affinity =
+        0.6 * (Math.log(1 + catAff) / Math.LN2) +
+        0.6 * (Math.log(1 + tagAff) / Math.LN2) +
+        ALGO.SESSION * (Math.log(1 + sesCat) / Math.LN2) +
+        0.6 * (Math.log(1 + sesTag) / Math.LN2);
 
       // Past engagement with this exact product.
       var engagement = Math.min(ALGO.MAX_ENGAGEMENT,
@@ -495,18 +515,35 @@
         return;
       }
 
-      var arr = slides.slice().sort(function (a, b) { return scoreSlide(b) - scoreSlide(a); });
+      var pool = slides.slice();
+      pool.forEach(function (s) { s._score = scoreSlide(s); });
 
-      // Epsilon-greedy exploration: with probability `exploration`, swap a
-      // slot with a random later item so new products get a chance.
       var epsilon = Math.max(0, Math.min(0.85, Number(CFG.exploration) || 0));
-      for (var i = 0; i < arr.length - 1; i++) {
-        if (Math.random() < epsilon) {
-          var j = i + 1 + Math.floor(Math.random() * (arr.length - i - 1));
-          var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      var out = [];
+      var lastCats = [];
+      while (pool.length) {
+        var bestIdx = 0;
+        var best = -Infinity;
+        for (var i = 0; i < pool.length; i++) {
+          var sc = pool[i]._score;
+          // Diversity: penalize categories shown in the previous two picks.
+          for (var k = 0; k < lastCats.length; k++) {
+            if (lastCats[k] && lastCats[k] === pool[i].data.category) sc -= ALGO.DIVERSITY_PENALTY;
+          }
+          sc += ALGO.RANDOM_NOISE * Math.random();
+          if (sc > best) { best = sc; bestIdx = i; }
         }
+        // Epsilon-greedy exploration: occasionally surface a random product.
+        if (Math.random() < epsilon && pool.length > 1) {
+          bestIdx = Math.floor(Math.random() * pool.length);
+        }
+        var pick = pool.splice(bestIdx, 1)[0];
+        out.push(pick);
+        lastCats.push(pick.data.category);
+        if (lastCats.length > 2) lastCats.shift();
       }
-      slides = arr;
+
+      slides = out;
       slides.forEach(function (s) { feed.appendChild(s.el); });
     }
 
