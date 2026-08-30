@@ -15,6 +15,9 @@
   style="--rs-accent: {{ section.settings.accent_color }};"
 >
   <header class="reel-favpage__header">
+    <a href="{{ routes.root_url }}" style="display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:16px;text-decoration:none;">
+      ← Back to Reels Feed
+    </a>
     <h1 class="reel-favpage__title">{{ section.settings.heading | default: 'Your favorites' | escape }}</h1>
     <p class="reel-favpage__sub">Saved on this device. Tap a product to jump back into the reels feed.</p>
   </header>

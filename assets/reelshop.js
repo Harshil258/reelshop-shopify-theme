@@ -276,16 +276,17 @@
       if (!slide || slide.loaded) return;
       slide.loaded = true;
       $all('[data-src]', slide.el).forEach(function (node) {
-        node.src = node.getAttribute('data-src');
+        var src = node.getAttribute('data-src');
+        if (!src) return;
+        node.src = src;
         node.removeAttribute('data-src');
-        var wrapper = node.closest('.reel-media');
-        var done = function () { if (wrapper) wrapper.classList.remove('is-loading'); };
-        if (node.tagName === 'IMG') {
-          if (node.complete) done();
-          else { node.addEventListener('load', done); node.addEventListener('error', done); }
-        } else {
-          node.addEventListener('loadeddata', done);
-          node.addEventListener('error', done);
+        if (node.tagName === 'VIDEO') {
+          node.defaultMuted = true;
+          node.muted = !Store.data.sound;
+          node.setAttribute('muted', '');
+          node.setAttribute('playsinline', '');
+          node.setAttribute('webkit-playsinline', '');
+          try { node.load(); } catch (e) {}
         }
       });
     }
@@ -343,11 +344,20 @@
     function playVideo(slide) {
       var v = slide.video;
       if (!v) return;
+      v.defaultMuted = true;
       v.muted = !Store.data.sound;
       var cell = v.closest('.reel-media');
       if (cell) cell.classList.remove('is-paused');
       var p = v.play();
-      if (p && p.catch) p.catch(function () { /* autoplay blocked; tap-to-play still works */ });
+      if (p && p.catch) {
+        p.catch(function () {
+          // If unmuted autoplay fails, try muted playback
+          if (!v.muted) {
+            v.muted = true;
+            v.play().catch(function () {});
+          }
+        });
+      }
     }
 
     function pauseVideo(slide) {
@@ -363,8 +373,9 @@
       if (slide !== currentSlide || !slide.video) return;
       var cell = slide.video.closest('.reel-media');
       if (slide.video.paused) {
-        slide.video.play().catch(function () {});
-        if (cell) cell.classList.remove('is-paused');
+        slide.video.play().then(function () {
+          if (cell) cell.classList.remove('is-paused');
+        }).catch(function () {});
       } else {
         slide.video.pause();
         if (cell) cell.classList.add('is-paused');
@@ -818,12 +829,12 @@
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.intersectionRatio >= 0.6) {
+          if (entry.intersectionRatio >= 0.5) {
             var slide = slides.filter(function (s) { return s.el === entry.target; })[0];
             if (slide) activate(slide);
           }
         });
-      }, { root: feed, threshold: [0.6] });
+      }, { root: feed, threshold: [0.5] });
       slides.forEach(function (s) { io.observe(s.el); });
 
       var preload = new IntersectionObserver(function (entries) {
@@ -835,10 +846,11 @@
         });
       }, { root: feed, rootMargin: '150% 0px 150% 0px', threshold: 0 });
       slides.forEach(function (s) { preload.observe(s.el); });
-    } else {
-      // Ancient browser fallback: load everything, activate first slide.
-      slides.forEach(ensureMediaLoaded);
-      if (slides[0]) activate(slides[0]);
+    }
+
+    // Activate the first slide immediately on boot
+    if (slides.length > 0) {
+      activate(slides[0]);
     }
 
     // Flush telemetry when leaving / hiding the tab.

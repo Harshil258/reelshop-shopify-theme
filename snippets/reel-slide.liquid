@@ -3,27 +3,40 @@
   Accepts:
     - product:          the product to render
     - section_settings: the reels-feed section settings
-  Uses only conservative Liquid constructs for maximum server compatibility.
 {% endcomment %}
 
 {%- assign mf = product.metafields.reelshop -%}
-{%- assign affiliate_url = mf.affiliate_url -%}
 
-{%- assign platform = mf.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip -%}
-{%- assign platform_label = 'Store' -%}
-{%- if platform == 'amazon' -%}
+{%- comment -%} Platform resolution {%- endcomment -%}
+{%- assign platform_raw = mf.platform.value | default: mf.platform | default: section_settings.default_platform | default: 'amazon' | downcase | strip -%}
+{%- assign platform_label = 'Amazon' -%}
+{%- if platform_raw contains 'amazon' -%}
   {%- assign platform_label = 'Amazon' -%}
-{%- elsif platform == 'flipkart' -%}
+  {%- assign platform = 'amazon' -%}
+{%- elsif platform_raw contains 'flipkart' -%}
   {%- assign platform_label = 'Flipkart' -%}
-{%- elsif platform == 'meesho' -%}
+  {%- assign platform = 'flipkart' -%}
+{%- elsif platform_raw contains 'meesho' -%}
   {%- assign platform_label = 'Meesho' -%}
-{%- elsif platform != blank -%}
-  {%- assign platform_label = platform | capitalize -%}
+  {%- assign platform = 'meesho' -%}
+{%- elsif platform_raw != blank -%}
+  {%- assign platform_label = platform_raw | capitalize -%}
+  {%- assign platform = platform_raw -%}
 {%- endif -%}
 
-{%- assign symbol = mf.currency_symbol | default: section_settings.currency_symbol -%}
-{%- assign mf_price = mf.price -%}
-{%- assign mf_original = mf.original_price -%}
+{%- comment -%} Affiliate URL resolution {%- endcomment -%}
+{%- assign affiliate_url = mf.affiliate_url.value | default: mf.affiliate_url -%}
+{%- if affiliate_url == blank and product.description contains 'http' -%}
+  {%- comment %} Try parsing affiliate url from description if present {% endcomment -%}
+{%- endif -%}
+{%- if affiliate_url == blank -%}
+  {%- assign affiliate_url = 'https://www.amazon.in/s?k=' | append: product.title | url_param_escape -%}
+{%- endif -%}
+
+{%- comment -%} Price & Discount resolution {%- endcomment -%}
+{%- assign symbol = mf.currency_symbol.value | default: mf.currency_symbol | default: section_settings.currency_symbol | default: '₹' -%}
+{%- assign mf_price = mf.price.value | default: mf.price -%}
+{%- assign mf_original = mf.original_price.value | default: mf.original_price -%}
 {%- assign current_display = '' -%}
 {%- assign original_display = '' -%}
 {%- assign discount_pct = 0 -%}
@@ -58,53 +71,94 @@
   {%- endif -%}
 {%- endif -%}
 
-{%- assign video_meta = mf.video_url -%}
+{%- comment -%} Video resolution (Shopify File/Video, Metafield, or Native Product Media) {%- endcomment -%}
+{%- assign video_meta = mf.video_url.value | default: mf.video_url -%}
 {%- assign video_url = '' -%}
+{%- assign poster_url = '' -%}
+
 {%- if video_meta != blank -%}
-  {%- if video_meta.media_type == 'video' -%}
-    {%- assign video_url = video_meta.sources[0].url | default: '' -%}
-  {%- else -%}
+  {%- if video_meta.sources != blank -%}
+    {%- for src in video_meta.sources -%}
+      {%- if src.format == 'mp4' or forloop.first -%}
+        {%- assign video_url = src.url -%}
+        {%- if src.format == 'mp4' -%}{%- break -%}{%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if video_meta.preview_image != blank -%}
+      {%- assign poster_url = video_meta.preview_image | image_url: width: 1080 -%}
+    {%- endif -%}
+  {%- elsif video_meta.url != blank -%}
+    {%- assign video_url = video_meta.url -%}
+  {%- elsif video_meta contains 'http' or video_meta contains '//' -%}
     {%- assign video_url = video_meta | append: '' -%}
   {%- endif -%}
 {%- endif -%}
 
+{%- if video_url == blank and product.media.size > 0 -%}
+  {%- for media in product.media -%}
+    {%- if media.media_type == 'video' -%}
+      {%- for src in media.sources -%}
+        {%- if src.format == 'mp4' or forloop.first -%}
+          {%- assign video_url = src.url -%}
+          {%- if src.format == 'mp4' -%}{%- break -%}{%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if media.preview_image != blank and poster_url == blank -%}
+        {%- assign poster_url = media.preview_image | image_url: width: 1080 -%}
+      {%- endif -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- comment -%} Image Carousel resolution {%- endcomment -%}
 {%- capture gallery_str -%}
-{%- if mf.gallery_images.value != blank -%}
-{%- for item in mf.gallery_images.value -%}
-{%- if item.preview_image != blank -%}{{ item.preview_image | image_url: width: 1080 }}|||{%- elsif item contains '//' -%}{{ item }}|||{%- endif -%}
-{%- endfor -%}
-{%- else -%}
-{%- for img in product.images limit: 6 -%}{{ img | image_url: width: 1080 }}|||{%- endfor -%}
-{%- endif -%}
+  {%- if mf.gallery_images.value != blank -%}
+    {%- for item in mf.gallery_images.value -%}
+      {%- if item.preview_image != blank -%}
+        {{ item.preview_image | image_url: width: 1080 }}|||
+      {%- elsif item.src != blank -%}
+        {{ item.src | image_url: width: 1080 }}|||
+      {%- elsif item contains '//' or item contains 'http' -%}
+        {{ item }}|||
+      {%- endif -%}
+    {%- endfor -%}
+  {%- elsif product.images.size > 0 -%}
+    {%- for img in product.images limit: 8 -%}
+      {{ img | image_url: width: 1080 }}|||
+    {%- endfor -%}
+  {%- endif -%}
 {%- endcapture -%}
-{%- assign image_urls = gallery_str | split: '|||' -%}
+{%- assign image_urls = gallery_str | strip | split: '|||' -%}
 
-{%- assign poster_url = '' -%}
-{%- if image_urls.size > 0 -%}
-  {%- assign poster_url = image_urls[0] -%}
-{%- elsif product.featured_image != blank -%}
-  {%- assign poster_url = product.featured_image | image_url: width: 1080 -%}
+{%- if poster_url == blank -%}
+  {%- if image_urls.size > 0 -%}
+    {%- assign poster_url = image_urls[0] | strip -%}
+  {%- elsif product.featured_image != blank -%}
+    {%- assign poster_url = product.featured_image | image_url: width: 1080 -%}
+  {%- endif -%}
 {%- endif -%}
 
-{%- assign category = mf.category | default: product.type | default: product.tags.first | default: 'General' -%}
+{%- assign category = mf.category.value | default: mf.category | default: product.type | default: product.tags.first | default: 'Trending' -%}
 {%- assign algo_tags = mf.tags_extra.value | default: product.tags -%}
-{%- assign rating = mf.rating -%}
-{%- assign desc_text = product.description | strip_html | truncate: 600 -%}
+{%- assign rating = mf.rating.value | default: mf.rating -%}
+{%- assign desc_text = product.description | strip_html | truncate: 500 -%}
 {%- assign share_url = shop.url | append: '/?product=' | append: product.handle -%}
 {%- assign cta_text = section_settings.cta_text | default: 'Buy on {{platform}}' | replace: '{{platform}}', platform_label -%}
 
-<article class="reel-slide" data-handle="{{ product.handle | escape }}" aria-label="{{ product.title | escape }}">
+<article class="reel-slide" data-handle="{{ product.handle | escape }}" data-id="{{ product.id }}" aria-label="{{ product.title | escape }}">
   <div class="reel-track">
     {%- if video_url != blank -%}
-      <div class="reel-media is-loading">
+      <div class="reel-media">
         <video
-          muted
-          loop
+          muted="muted"
           playsinline
-          preload="none"
+          webkit-playsinline
+          loop
+          preload="metadata"
           data-src="{{ video_url | escape }}"
           {% if poster_url != blank %}poster="{{ poster_url | escape }}"{% endif %}
-          aria-label="{{ product.title | escape }} promo video"
+          aria-label="{{ product.title | escape }} video"
         ></video>
         <span class="rs-paused-badge" aria-hidden="true">
           <span><svg viewBox="0 0 24 24" focusable="false"><path d="M8 5v14l11-7z"/></svg></span>
@@ -113,19 +167,26 @@
     {%- endif -%}
 
     {%- for img in image_urls -%}
-      {%- unless img == blank -%}
-        <div class="reel-media is-loading">
+      {%- assign clean_img = img | strip -%}
+      {%- if clean_img != blank -%}
+        <div class="reel-media">
           <img
-            data-src="{{ img | escape }}"
-            alt="{{ product.title | escape }} — image {{ forloop.index }}"
+            data-src="{{ clean_img | escape }}"
+            alt="{{ product.title | escape }} — photo {{ forloop.index }}"
+            loading="lazy"
             decoding="async"
           >
         </div>
-      {%- endunless -%}
+      {%- endif -%}
     {%- endfor -%}
 
     {%- if video_url == blank and image_urls.size == 0 -%}
-      <div class="reel-media reel-media--placeholder"></div>
+      <div class="reel-media reel-media--placeholder">
+        <div class="reel-placeholder-content">
+          <span class="rs-emoji" aria-hidden="true">🛍️</span>
+          <span class="reel-placeholder-title">{{ product.title | escape }}</span>
+        </div>
+      </div>
     {%- endif -%}
   </div>
 
@@ -133,34 +194,31 @@
   <div class="reel-scrim reel-scrim--top" aria-hidden="true"></div>
 
   <div class="reel-info">
-    <span class="reel-info__platform">{{ platform_label | escape }}</span>
+    <div class="reel-info__platform-wrap">
+      <span class="reel-info__platform">{{ platform_label | escape }}</span>
+      {%- if section_settings.show_ratings and rating != blank -%}
+        <span class="reel-info__rating" aria-label="Rated {{ rating }} out of 5">★ {{ rating | plus: 0 }}</span>
+      {%- endif -%}
+    </div>
 
     <h2 class="reel-info__title">{{ product.title | escape }}</h2>
 
-    {%- if section_settings.show_ratings and rating != blank -%}
-      <span class="reel-info__rating" aria-label="Rated {{ rating }} out of 5">★ {{ rating | plus: 0 }}</span>
-    {%- endif -%}
-
     {%- if desc_text != blank -%}
       <p class="reel-info__desc">{{ desc_text | escape }}</p>
-      {%- if desc_text.size > 120 -%}
+      {%- if desc_text.size > 100 -%}
         <button class="reel-info__more" type="button">more</button>
       {%- endif -%}
     {%- endif -%}
 
     {%- render 'price-block', price_display: current_display, original_display: original_display, discount_pct: discount_pct -%}
 
-    {%- if affiliate_url != blank -%}
-      <a class="reel-cta" href="{{ affiliate_url | escape }}" target="_blank" rel="nofollow sponsored noopener">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-        {{ cta_text | escape }}
-      </a>
-    {%- else -%}
-      <span class="reel-cta is-disabled">Set the affiliate link metafield</span>
-    {%- endif -%}
+    <a class="reel-cta" href="{{ affiliate_url | escape }}" target="_blank" rel="nofollow sponsored noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      {{ cta_text | escape }}
+    </a>
   </div>
 
-  {%- render 'action-rail', category: category -%}
+  {%- render 'action-rail', category: category, product: product -%}
 
   <div class="reel-dots" aria-hidden="true"></div>
 
@@ -181,3 +239,4 @@
     }
   </script>
 </article>
+

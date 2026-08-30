@@ -1,24 +1,42 @@
-{{ 'section-main-page.css' | asset_url | stylesheet_tag }}
-
 {%- style -%}
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  .reel-page-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
   }
-
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
+  .reel-page-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--rs-text-dim, rgba(255,255,255,0.7));
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    text-decoration: none;
+  }
+  .reel-page-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 20px;
+  }
+  .reel-page-content {
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
   }
 {%- endstyle -%}
 
-<div class="page-width page-width--narrow section-{{ section.id }}-padding">
-  <h1 class="main-page-title page-title h0{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
+<div class="reel-page-container">
+  <a href="{{ routes.root_url }}" class="reel-page-back">
+    ← Back to Reels
+  </a>
+  <h1 class="reel-page-title">
     {{ page.title | escape }}
   </h1>
-  <div class="rte{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+  <div class="reel-page-content">
     {{ page.content }}
   </div>
 </div>
